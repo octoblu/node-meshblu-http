@@ -1,0 +1,31 @@
+sudo: false
+language: node_js
+node_js:
+- '0.10'
+deploy:
+- provider: s3
+  access_key_id: AKIAIT4X4NDGM2WVL6VA
+  secret_access_key:
+    secure: "DhwxqyddUxYRb5+so16RWpln9sNJ2tfSeK5yiq4/UEu0LSI4hCHWOSFqQCpwAj7AIPUFhBGlaXJ3fquVFhloWAKOaWOLUWer/1i46cxTTaSlC5XG82VrGT5y2Ij5OP47WB3K0rLDMqxEplGGvcVq+y5gXPeGIub41H2Bao/RRIM="
+  bucket: meshblu-client
+  region: us-west-2
+  skip_cleanup: true
+  local-dir: deploy
+  upload-dir: js/http
+  on:
+    tags: true
+    all_branches: true
+- provider: npm
+  skip_cleanup: true
+  clean_up: false
+  email: serveradmin@octoblu.com
+  api_key:
+    secure: "B/fM9GvTo/9c+qglKXmJVBh/IsK6MHSRDWr9pYD4ejYExk0AEG+ZDb0+5C2Qa2dVQ+3Wn3vlphG1n7T2KnIw0lOG3UAYWqGL9lgkTef/IpfsHJWZCqV/FOuuFeaU73YW/XF1MXn2fwV/y/MPaBE6y9dkjbDa3zUYHBH1S3cimj4="
+  on:
+    tags: true
+    all_branches: true
+before_deploy:
+- npm install browserify
+- mkdir -p deploy/$TRAVIS_TAG deploy/latest
+- node_modules/.bin/browserify -s meshblu index.js > deploy/$TRAVIS_TAG/meshblu-http.bundle.js
+- cp deploy/$TRAVIS_TAG/meshblu-http.bundle.js deploy/latest/meshblu-http.bundle.js
