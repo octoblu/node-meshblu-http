@@ -42,6 +42,17 @@ class Meshblu
 
       callback null, body
 
+  message: (message, callback=->) =>
+    options = @getDefaultRequestOptions()
+    options.json = message
+
+    debug 'POST', "#{@urlBase}/messages", options
+    @request.post "#{@urlBase}/messages", options, (error, response, body) =>
+      return callback error if error?
+      return callback new Error(body.error) if body?.error?
+
+      callback null, body
+
   revokeToken: (deviceUuid, deviceToken, callback=->) =>
     options = @getDefaultRequestOptions()
 
