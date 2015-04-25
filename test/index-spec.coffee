@@ -97,7 +97,7 @@ describe 'Meshblu', ->
     describe 'with a valid query', ->
       beforeEach (done) ->
         @request.get.yields null, null, foo: 'bar'
-        @sut.devices 'octoblu:test', (@error, @body) => done()
+        @sut.devices type: 'octoblu:test', (@error, @body) => done()
 
       it 'should call get', ->
         expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices',
