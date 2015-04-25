@@ -26,9 +26,9 @@ class Meshblu
 
       callback null, body
 
-  devices: (deviceType, callback=->) =>
+  devices: (query={}, callback=->) =>
     options = @getDefaultRequestOptions()
-    options.qs = type: deviceType if deviceType?
+    options.qs = query
 
     @request.get "#{@urlBase}/devices", options, (error, response, body) ->
       return callback error if error?
