@@ -104,9 +104,6 @@ describe 'Meshblu', ->
           qs:
             type: 'octoblu:test'
           json: true
-          auth:
-            user: undefined
-            pass: undefined
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
@@ -187,9 +184,6 @@ describe 'Meshblu', ->
         expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/messages',
           json:
             devices: 'uuid'
-          auth:
-            user: undefined
-            pass: undefined
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'

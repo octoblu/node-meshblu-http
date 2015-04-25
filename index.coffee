@@ -9,7 +9,10 @@ class Meshblu
     @request = @dependencies.request ? require 'request'
 
   getDefaultRequestOptions: =>
-    json: true
+    _.extend json: true, @getAuthRequestOptions()
+
+  getAuthRequestOptions: =>
+    return {} unless @uuid && @token
     auth:
       user: @uuid
       pass: @token
@@ -47,7 +50,7 @@ class Meshblu
     options.json = message
 
     debug 'POST', "#{@urlBase}/messages", options
-    @request.post "#{@urlBase}/messages", options, (error, response, body) =>
+    @request.post "#{@urlBase}/messages", options, (error, response, body) ->
       return callback error if error?
       return callback new Error(body.error) if body?.error?
 
