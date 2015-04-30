@@ -3,7 +3,7 @@ debug   = require('debug')('meshblu-http')
 
 class Meshblu
   constructor: (options={}, @dependencies={}) ->
-    options = _.defaults(options, port: 443, protocol: 'https', server: 'meshblu.octoblu.com')
+    options = _.defaults(_.cloneDeep(options), port: 443, protocol: 'https', server: 'meshblu.octoblu.com')
     {@uuid, @token, @server, @port, @protocol} = options
     try
       @port = parseInt @port
