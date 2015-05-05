@@ -11,7 +11,7 @@ class Meshblu
 
     @protocol = 'https' if @port == 443
     @protocol = 'http' if @port == 80
-    
+
     @urlBase = "#{@protocol}://#{@server}:#{@port}"
     @request = @dependencies.request ? require 'request'
 
@@ -30,6 +30,7 @@ class Meshblu
     @request.get "#{@urlBase}/v2/devices/#{deviceUuid}", options, (error, response, body) ->
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
+      return callback new Error(body.message || body) if response.statusCode != 200
 
       callback null, body
 
