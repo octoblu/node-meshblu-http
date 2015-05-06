@@ -56,7 +56,7 @@ describe 'Meshblu', ->
 
     describe 'when given a valid uuid', ->
       beforeEach (done) ->
-        @request.get.yields null, null, foo: 'bar'
+        @request.get.yields null, {statusCode: 200}, foo: 'bar'
         @sut.device 'the-uuuuid', (@error, @body) => done()
 
       it 'should call get', ->
