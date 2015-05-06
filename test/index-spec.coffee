@@ -48,6 +48,16 @@ describe 'Meshblu', ->
       it 'should set urlBase', ->
         expect(@sut.urlBase).to.equal 'ftp://halo:400'
 
+    describe 'with websocket protocol options', ->
+      beforeEach ->
+        @sut = new Meshblu
+          protocol: 'websocket'
+          server: 'halo'
+          port: 400
+
+      it 'should set urlBase', ->
+        expect(@sut.urlBase).to.equal 'http://halo:400'
+
   describe '-> device', ->
     beforeEach ->
       @request = get: sinon.stub()

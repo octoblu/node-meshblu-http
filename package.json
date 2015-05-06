@@ -1,6 +1,6 @@
 {
   "name": "meshblu-http",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Meshblu HTTP API",
   "main": "index.js",
   "scripts": {
