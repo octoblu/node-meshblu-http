@@ -140,6 +140,48 @@ describe 'Meshblu', ->
       it 'should callback with an error', ->
         expect(@error).to.deep.equal new Error
 
+  describe '-> mydevices', ->
+    beforeEach ->
+      @request = get: sinon.stub()
+      @dependencies = request: @request
+      @sut = new Meshblu {}, @dependencies
+
+    describe 'with a valid query', ->
+      beforeEach (done) ->
+        @request.get.yields null, null, foo: 'bar'
+        @sut.mydevices type: 'octoblu:test', (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/mydevices',
+          qs:
+            type: 'octoblu:test'
+          json: true
+
+      it 'should call callback', ->
+        expect(@body).to.deep.equal foo: 'bar'
+
+    describe 'when an error happens', ->
+      beforeEach (done) ->
+        @request.get.yields new Error
+        @sut.mydevices 'invalid-uuid', (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/mydevices'
+
+      it 'should callback with an error', ->
+        expect(@error).to.deep.equal new Error
+
+    describe 'when a meshblu error body is returned', ->
+      beforeEach (done) ->
+        @request.get.yields null, null, error: 'something wrong'
+        @sut.mydevices 'invalid-uuid', (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/mydevices'
+
+      it 'should callback with an error', ->
+        expect(@error).to.deep.equal new Error
+
   describe '-> generateAndStoreToken', ->
     beforeEach ->
       @request = post: sinon.stub()

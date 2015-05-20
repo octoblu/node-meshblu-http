@@ -45,6 +45,16 @@ class Meshblu
 
       callback null, body
 
+  mydevices: (query={}, callback=->) =>
+    options = @getDefaultRequestOptions()
+    options.qs = query
+
+    @request.get "#{@urlBase}/mydevices", options, (error, response, body) ->
+      return callback error if error?
+      return callback new Error(body.error) if body?.error?
+
+      callback null, body
+
   generateAndStoreToken: (deviceUuid, callback=->) =>
     options = @getDefaultRequestOptions()
 
