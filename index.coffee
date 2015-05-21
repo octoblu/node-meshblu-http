@@ -29,6 +29,7 @@ class Meshblu
     options = @getDefaultRequestOptions()
 
     @request.get "#{@urlBase}/v2/devices/#{deviceUuid}", options, (error, response, body) ->
+      debug "device", error, body
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
       return callback new Error(body.message || body) if response.statusCode != 200
@@ -40,6 +41,7 @@ class Meshblu
     options.qs = query
 
     @request.get "#{@urlBase}/devices", options, (error, response, body) ->
+      debug "devices", error, body
       return callback error if error?
       return callback new Error(body.error) if body?.error?
 
@@ -50,6 +52,7 @@ class Meshblu
     options.qs = query
 
     @request.get "#{@urlBase}/mydevices", options, (error, response, body) ->
+      debug "mydevices", error, body
       return callback error if error?
       return callback new Error(body.error) if body?.error?
 
@@ -59,6 +62,7 @@ class Meshblu
     options = @getDefaultRequestOptions()
 
     @request.post "#{@urlBase}/devices/#{deviceUuid}/tokens", options, (error, response, body) ->
+      debug "generateAndStoreToken", error, body
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
 
@@ -70,6 +74,7 @@ class Meshblu
 
     debug 'POST', "#{@urlBase}/messages", options
     @request.post "#{@urlBase}/messages", options, (error, response, body) ->
+      debug "message", error, body
       return callback error if error?
       return callback new Error(body.error) if body?.error?
 
@@ -79,6 +84,7 @@ class Meshblu
     options = @getDefaultRequestOptions()
 
     @request.del "#{@urlBase}/devices/#{deviceUuid}/tokens/#{deviceToken}", options, (error, response, body) ->
+      debug "revokeToken", error, body
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
       callback null
