@@ -89,4 +89,13 @@ class Meshblu
       return callback new Error(body.error.message) if body?.error?
       callback null
 
+  unregister: (device, callback=->) =>
+    options = @getDefaultRequestOptions()
+
+    @request.del "#{@urlBase}/devices/#{device.uuid}", options, (error, response, body) ->
+      debug "unregister", error, body
+      return callback error if error?
+      return callback new Error(body.error.message) if body?.error?
+      callback null
+
 module.exports = Meshblu

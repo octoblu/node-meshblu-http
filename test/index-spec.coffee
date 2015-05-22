@@ -300,3 +300,36 @@ describe 'Meshblu', ->
 
       it 'should callback with an error', ->
         expect(@error).to.deep.equal new Error
+
+  describe '->unregister', ->
+    beforeEach ->
+      @request = del: sinon.stub()
+      @dependencies = request: @request
+      @sut = new Meshblu {}, @dependencies
+
+    describe 'with a device', ->
+      beforeEach (done) ->
+        @request.del = sinon.stub().yields null, null, null
+        @sut.unregister {uuid: 'howdy', token: 'sweet'}, (@error) => done()
+
+      it 'should not have an error', ->
+        expect(@error).to.not.exist
+
+      it 'should call request.del on the device', ->
+        expect(@request.del).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/howdy'
+
+    describe 'with an invalid device', ->
+      beforeEach (done) ->
+        @request.del = sinon.stub().yields new Error('unable to delete device'), null, null
+        @sut.unregister {uuid: 'NOPE', token: 'NO'}, (@error) => done()
+
+      it 'should have an error', ->
+        expect(@error.message).to.equal 'unable to delete device'
+
+    describe 'when request returns an error in the body', ->
+      beforeEach (done) ->
+        @request.del = sinon.stub().yields null, null, error: new Error('body error')
+        @sut.unregister {uuid: 'NOPE', token: 'NO'}, (@error) => done()
+
+      it 'should have an error', ->
+        expect(@error.message).to.equal 'body error'
