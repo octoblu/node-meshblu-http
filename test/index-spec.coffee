@@ -58,6 +58,16 @@ describe 'Meshblu', ->
       it 'should set urlBase', ->
         expect(@sut.urlBase).to.equal 'http://halo:400'
 
+
+    describe 'without a protocol on a specific port', ->
+      beforeEach ->
+        @sut = new Meshblu
+          server: 'localhost'
+          port: 3000
+
+      it 'should set urlBase', ->
+        expect(@sut.urlBase).to.equal 'http://localhost:3000'
+
   describe '-> device', ->
     beforeEach ->
       @request = get: sinon.stub()
@@ -297,6 +307,46 @@ describe 'Meshblu', ->
 
       it 'should call del', ->
         expect(@request.del).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/invalid-uuid/tokens/tkoen'
+
+      it 'should callback with an error', ->
+        expect(@error).to.deep.equal new Error
+
+  describe '-> whoami', ->
+    beforeEach ->
+      @request = get: sinon.stub()
+      @dependencies = request: @request
+      @sut = new Meshblu {}, @dependencies
+
+    describe 'when given a valid uuid', ->
+      beforeEach (done) ->
+        @request.get.yields null, {statusCode: 200}, foo: 'bar'
+        @sut.whoami (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/whoami'
+
+      it 'should call callback', ->
+        expect(@body).to.deep.equal foo: 'bar'
+
+    describe 'when an error happens', ->
+      beforeEach (done) ->
+        @request.get.yields new Error
+        @dependencies = request: @request
+        @sut.whoami (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/whoami'
+
+      it 'should callback with an error', ->
+        expect(@error).to.deep.equal new Error
+
+    describe 'when a meshblu error body is returned', ->
+      beforeEach (done) ->
+        @request.get.yields null, null, error: 'something wrong'
+        @sut.whoami (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/whoami'
 
       it 'should callback with an error', ->
         expect(@error).to.deep.equal new Error

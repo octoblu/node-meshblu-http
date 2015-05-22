@@ -89,4 +89,15 @@ class Meshblu
       return callback new Error(body.error.message) if body?.error?
       callback null
 
+  whoami: (callback=->) =>
+    options = @getDefaultRequestOptions()
+
+    @request.get "#{@urlBase}/v2/whoami", options, (error, response, body) ->
+      debug "whoami", error, body
+      return callback error if error?
+      return callback new Error(body.error.message) if body?.error?
+      return callback new Error(body.message || body) if response.statusCode != 200
+
+      callback null, body
+
 module.exports = Meshblu
