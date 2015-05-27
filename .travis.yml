@@ -7,11 +7,11 @@ deploy:
   access_key_id: AKIAIT4X4NDGM2WVL6VA
   secret_access_key:
     secure: "DhwxqyddUxYRb5+so16RWpln9sNJ2tfSeK5yiq4/UEu0LSI4hCHWOSFqQCpwAj7AIPUFhBGlaXJ3fquVFhloWAKOaWOLUWer/1i46cxTTaSlC5XG82VrGT5y2Ij5OP47WB3K0rLDMqxEplGGvcVq+y5gXPeGIub41H2Bao/RRIM="
-  bucket: meshblu-client
+  bucket: octoblu-cdn
   region: us-west-2
   skip_cleanup: true
   local-dir: deploy
-  upload-dir: js/http
+  upload-dir: js
   on:
     tags: true
     all_branches: true
@@ -26,6 +26,6 @@ deploy:
     all_branches: true
 before_deploy:
 - npm install browserify coffeeify
-- mkdir -p deploy/$TRAVIS_TAG deploy/latest
-- node_modules/.bin/browserify -t coffeeify index.js > deploy/$TRAVIS_TAG/meshblu-http.bundle.js
-- cp deploy/$TRAVIS_TAG/meshblu-http.bundle.js deploy/latest/meshblu-http.bundle.js
+- mkdir -p deploy/meshblu-http/$TRAVIS_TAG deploy/meshblu-http/latest
+- node_modules/.bin/browserify -t coffeeify index.js > deploy/meshblu-http/$TRAVIS_TAG/meshblu-http.bundle.js
+- cp deploy/meshblu-http/$TRAVIS_TAG/meshblu-http.bundle.js deploy/meshblu-http/latest/meshblu-http.bundle.js
