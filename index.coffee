@@ -98,6 +98,16 @@ class Meshblu
       return callback new Error(body.error.message) if body?.error?
       callback null
 
+  update: (device, callback=->) =>
+    options = @getDefaultRequestOptions()
+    options.json = device
+
+    @request.put "#{@urlBase}/devices/#{device.uuid}", options, (error, response, body) ->
+      debug "update", error, body
+      return callback error if error?
+      return callback new Error(body.error.message) if body?.error?
+      callback null
+
   whoami: (callback=->) =>
     options = @getDefaultRequestOptions()
 
