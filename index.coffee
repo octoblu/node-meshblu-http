@@ -1,7 +1,8 @@
 _       = require 'lodash'
 debug   = require('debug')('meshblu-http')
+stableStringify = require 'json-stable-stringify'
 
-class Meshblu
+class MeshbluHttp
   constructor: (options={}, @dependencies={}) ->
     options = _.defaults(_.cloneDeep(options), port: 443, server: 'meshblu.octoblu.com')
     {@uuid, @token, @server, @port, @protocol} = options
@@ -15,6 +16,7 @@ class Meshblu
 
     @urlBase = "#{@protocol}://#{@server}:#{@port}"
     @request = @dependencies.request ? require 'request'
+    @NodeRSA = @dependencies.NodeRSA ? require 'node-rsa'
 
   getDefaultRequestOptions: =>
     _.extend json: true, @getAuthRequestOptions()
@@ -80,6 +82,16 @@ class Meshblu
 
       callback null, body
 
+  register: (device, callback=->) =>
+    options = @getDefaultRequestOptions()
+    options.json = device
+
+    @request.post "#{@urlBase}/devices", options, (error, response, body) ->
+      debug "register", error, body
+      return callback error if error?
+      return callback new Error(body.error.message) if body?.error?
+      callback null, body
+
   revokeToken: (deviceUuid, deviceToken, callback=->) =>
     options = @getDefaultRequestOptions()
 
@@ -88,6 +100,12 @@ class Meshblu
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
       callback null
+
+  setPrivateKey: (privateKey) =>
+    @privateKey = new @NodeRSA privateKey
+
+  sign: (data) =>
+    @privateKey.sign(stableStringify(data)).toString('base64');
 
   unregister: (device, callback=->) =>
     options = @getDefaultRequestOptions()
@@ -108,6 +126,9 @@ class Meshblu
       return callback new Error(body.error.message) if body?.error?
       callback null
 
+  verify: (message, signature) =>
+    @privateKey.verify stableStringify(message), signature, 'utf8', 'base64'
+
   whoami: (callback=->) =>
     options = @getDefaultRequestOptions()
 
@@ -119,4 +140,4 @@ class Meshblu
 
       callback null, body
 
-module.exports = Meshblu
+module.exports = MeshbluHttp

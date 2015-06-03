@@ -384,6 +384,35 @@ describe 'Meshblu', ->
       it 'should have an error', ->
         expect(@error.message).to.equal 'body error'
 
+  describe '->setPrivateKey', ->
+    beforeEach ->
+      @nodeRSA = {}
+      @NodeRSA = sinon.spy => @nodeRSA
+      @sut = new Meshblu {}, NodeRSA: @NodeRSA
+      @sut.setPrivateKey 'data'
+
+    it 'should new NodeRSA', ->
+      expect(@NodeRSA).to.have.been.calledWithNew
+
+    it 'should set', ->
+      expect(@sut.privateKey).to.exist
+
+  describe '->sign', ->
+    beforeEach ->
+      @sut = new Meshblu {}
+      @sut.privateKey = sign: sinon.stub().returns 'abcd'
+
+    it 'should sign', ->
+      expect(@sut.sign('1234')).to.equal 'abcd'
+
+  describe '->verify', ->
+    beforeEach ->
+      @sut = new Meshblu {}
+      @sut.privateKey = verify: sinon.stub().returns true
+
+    it 'should sign', ->
+      expect(@sut.verify('1234', 'bbb')).to.be.true
+
   describe '->update', ->
     beforeEach ->
       @request = put: sinon.stub()
@@ -413,6 +442,39 @@ describe 'Meshblu', ->
       beforeEach (done) ->
         @request.put = sinon.stub().yields null, null, error: new Error('body error')
         @sut.update {uuid: 'NOPE', token: 'NO'}, (@error) => done()
+
+      it 'should have an error', ->
+        expect(@error.message).to.equal 'body error'
+
+  describe '->register', ->
+    beforeEach ->
+      @request = post: sinon.stub()
+      @dependencies = request: @request
+      @sut = new Meshblu {}, @dependencies
+
+    describe 'with a device', ->
+      beforeEach (done) ->
+        @request.post = sinon.stub().yields null, null, null
+        @sut.register {uuid: 'howdy', token: 'sweet'}, (@error) => done()
+
+      it 'should not have an error', ->
+        expect(@error).to.not.exist
+
+      it 'should call request.post on the device', ->
+        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices'
+
+    describe 'with an invalid device', ->
+      beforeEach (done) ->
+        @request.post = sinon.stub().yields new Error('unable to register device'), null, null
+        @sut.register {uuid: 'NOPE', token: 'NO'}, (@error) => done()
+
+      it 'should have an error', ->
+        expect(@error.message).to.equal 'unable to register device'
+
+    describe 'when request returns an error in the body', ->
+      beforeEach (done) ->
+        @request.post = sinon.stub().yields null, null, error: new Error('body error')
+        @sut.register {uuid: 'NOPE', token: 'NO'}, (@error) => done()
 
       it 'should have an error', ->
         expect(@error.message).to.equal 'body error'
