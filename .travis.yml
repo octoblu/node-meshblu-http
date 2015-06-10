@@ -2,6 +2,14 @@ sudo: false
 language: node_js
 node_js:
 - '0.10'
+before_deploy:
+- npm install ws browserify coffeeify
+- mkdir -p deploy/meshblu-http/latest
+- mkdir -p deploy/meshblu-http/$TRAVIS_TAG
+- node_modules/.bin/browserify -s MeshbluHttp -t coffeeify index.js > deploy/meshblu-http/$TRAVIS_TAG/meshblu-http.bundle.js
+- gzip deploy/meshblu-http/latest/meshblu-http.js
+- mv deploy/meshblu-http/latest/meshblu-http.js.gz deploy/meshblu-http/latest/meshblu-http.js
+- cp deploy/meshblu-http/latest/meshblu-http.js deploy/meshblu-http/$TRAVIS_TAG/meshblu-http.js
 deploy:
 - provider: s3
   access_key_id: AKIAIT4X4NDGM2WVL6VA
@@ -11,6 +19,7 @@ deploy:
   region: us-west-2
   skip_cleanup: true
   local-dir: deploy
+  detect_encoding: true
   upload-dir: js
   on:
     tags: true
@@ -24,8 +33,3 @@ deploy:
   on:
     tags: true
     all_branches: true
-before_deploy:
-- npm install browserify coffeeify
-- mkdir -p deploy/meshblu-http/$TRAVIS_TAG deploy/meshblu-http/latest
-- node_modules/.bin/browserify -t coffeeify index.js > deploy/meshblu-http/$TRAVIS_TAG/meshblu-http.bundle.js
-- cp deploy/meshblu-http/$TRAVIS_TAG/meshblu-http.bundle.js deploy/meshblu-http/latest/meshblu-http.bundle.js
