@@ -70,6 +70,12 @@ class MeshbluHttp
 
       callback null, body
 
+  generateKeyPair: =>
+    key = new @NodeRSA()
+    key.generateKeyPair()
+
+    privateKey: key.exportKey('private'), publicKey: key.exportKey('public')
+
   message: (message, callback=->) =>
     options = @getDefaultRequestOptions()
     options.json = message

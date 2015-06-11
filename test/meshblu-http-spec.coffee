@@ -1,20 +1,17 @@
-Meshblu = require '../src/meshblu-http'
+MeshbluHttp = require '../src/meshblu-http'
 
-describe 'Meshblu', ->
-  it 'should exist', ->
-    expect(Meshblu).to.exist
-
+describe 'MeshbluHttp', ->
   describe '->constructor', ->
     describe 'default', ->
       beforeEach ->
-        @sut = new Meshblu
+        @sut = new MeshbluHttp
 
       it 'should set urlBase', ->
         expect(@sut.urlBase).to.equal 'https://meshblu.octoblu.com:443'
 
     describe 'with options', ->
       beforeEach ->
-        @sut = new Meshblu
+        @sut = new MeshbluHttp
           uuid: '1234'
           token: 'tok3n'
           server: 'google.co'
@@ -41,7 +38,7 @@ describe 'Meshblu', ->
 
     describe 'with other options', ->
       beforeEach ->
-        @sut = new Meshblu
+        @sut = new MeshbluHttp
           protocol: 'ftp'
           server: 'halo'
           port: 400
@@ -51,7 +48,7 @@ describe 'Meshblu', ->
 
     describe 'with websocket protocol options', ->
       beforeEach ->
-        @sut = new Meshblu
+        @sut = new MeshbluHttp
           protocol: 'websocket'
           server: 'halo'
           port: 400
@@ -62,7 +59,7 @@ describe 'Meshblu', ->
 
     describe 'without a protocol on a specific port', ->
       beforeEach ->
-        @sut = new Meshblu
+        @sut = new MeshbluHttp
           server: 'localhost'
           port: 3000
 
@@ -73,7 +70,7 @@ describe 'Meshblu', ->
     beforeEach ->
       @request = get: sinon.stub()
       @dependencies = request: @request
-      @sut = new Meshblu {}, @dependencies
+      @sut = new MeshbluHttp {}, @dependencies
 
     describe 'when given a valid uuid', ->
       beforeEach (done) ->
@@ -113,7 +110,7 @@ describe 'Meshblu', ->
     beforeEach ->
       @request = get: sinon.stub()
       @dependencies = request: @request
-      @sut = new Meshblu {}, @dependencies
+      @sut = new MeshbluHttp {}, @dependencies
 
     describe 'with a valid query', ->
       beforeEach (done) ->
@@ -155,7 +152,7 @@ describe 'Meshblu', ->
     beforeEach ->
       @request = post: sinon.stub()
       @dependencies = request: @request
-      @sut = new Meshblu {}, @dependencies
+      @sut = new MeshbluHttp {}, @dependencies
 
     describe 'with a valid uuid', ->
       beforeEach (done) ->
@@ -194,7 +191,7 @@ describe 'Meshblu', ->
     beforeEach ->
       @request = get: sinon.stub()
       @dependencies = request: @request
-      @sut = new Meshblu {}, @dependencies
+      @sut = new MeshbluHttp {}, @dependencies
 
     describe 'with a valid query', ->
       beforeEach (done) ->
@@ -236,7 +233,7 @@ describe 'Meshblu', ->
     beforeEach ->
       @request = post: sinon.stub()
       @dependencies = request: @request
-      @sut = new Meshblu {}, @dependencies
+      @sut = new MeshbluHttp {}, @dependencies
 
     describe 'with a message', ->
       beforeEach (done) ->
@@ -277,7 +274,7 @@ describe 'Meshblu', ->
     beforeEach ->
       @request = post: sinon.stub()
       @dependencies = request: @request
-      @sut = new Meshblu {}, @dependencies
+      @sut = new MeshbluHttp {}, @dependencies
 
     describe 'with a device', ->
       beforeEach (done) ->
@@ -309,7 +306,7 @@ describe 'Meshblu', ->
   describe '->resetToken', ->
     beforeEach ->
       @request = post: sinon.stub()
-      @sut = new Meshblu {}, request: @request
+      @sut = new MeshbluHttp {}, request: @request
 
     describe 'when called with a uuid', ->
       beforeEach ->
@@ -361,7 +358,7 @@ describe 'Meshblu', ->
     beforeEach ->
       @request = del: sinon.stub()
       @dependencies = request: @request
-      @sut = new Meshblu {}, @dependencies
+      @sut = new MeshbluHttp {}, @dependencies
 
     describe 'with a valid uuid', ->
       beforeEach (done) ->
@@ -400,7 +397,7 @@ describe 'Meshblu', ->
     beforeEach ->
       @nodeRSA = {}
       @NodeRSA = sinon.spy => @nodeRSA
-      @sut = new Meshblu {}, NodeRSA: @NodeRSA
+      @sut = new MeshbluHttp {}, NodeRSA: @NodeRSA
       @sut.setPrivateKey 'data'
 
     it 'should new NodeRSA', ->
@@ -409,9 +406,28 @@ describe 'Meshblu', ->
     it 'should set', ->
       expect(@sut.privateKey).to.exist
 
+  describe '->generateKeyPair', ->
+    beforeEach ->
+      @nodeRSA =
+        exportKey: sinon.stub().returns ''
+        generateKeyPair: sinon.spy()
+      @NodeRSA = sinon.spy => @nodeRSA
+      @sut = new MeshbluHttp {}, NodeRSA: @NodeRSA
+      @result = @sut.generateKeyPair()
+
+    it 'should new NodeRSA', ->
+      expect(@NodeRSA).to.have.been.calledWithNew
+
+    it 'should get a privateKey', ->
+      expect(@result.privateKey).to.exist
+
+    it 'should get a publicKey', ->
+      expect(@result.publicKey).to.exist
+
+
   describe '->sign', ->
     beforeEach ->
-      @sut = new Meshblu {}
+      @sut = new MeshbluHttp {}
       @sut.privateKey = sign: sinon.stub().returns 'abcd'
 
     it 'should sign', ->
@@ -421,7 +437,7 @@ describe 'Meshblu', ->
     beforeEach ->
       @request = del: sinon.stub()
       @dependencies = request: @request
-      @sut = new Meshblu {}, @dependencies
+      @sut = new MeshbluHttp {}, @dependencies
 
     describe 'with a device', ->
       beforeEach (done) ->
@@ -454,7 +470,7 @@ describe 'Meshblu', ->
     beforeEach ->
       @request = put: sinon.stub()
       @dependencies = request: @request
-      @sut = new Meshblu {}, @dependencies
+      @sut = new MeshbluHttp {}, @dependencies
 
     describe 'with a device', ->
       beforeEach (done) ->
@@ -485,7 +501,7 @@ describe 'Meshblu', ->
 
   describe '->verify', ->
     beforeEach ->
-      @sut = new Meshblu {}
+      @sut = new MeshbluHttp {}
       @sut.privateKey = verify: sinon.stub().returns true
 
     it 'should sign', ->
@@ -495,7 +511,7 @@ describe 'Meshblu', ->
     beforeEach ->
       @request = get: sinon.stub()
       @dependencies = request: @request
-      @sut = new Meshblu {}, @dependencies
+      @sut = new MeshbluHttp {}, @dependencies
 
     describe 'when given a valid uuid', ->
       beforeEach (done) ->
