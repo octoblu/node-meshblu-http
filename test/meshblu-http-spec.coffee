@@ -474,14 +474,17 @@ describe 'MeshbluHttp', ->
 
     describe 'with a device', ->
       beforeEach (done) ->
-        @request.put = sinon.stub().yields null, null, null
-        @sut.update {uuid: 'howdy', token: 'sweet'}, (@error) => done()
+        @request.put = sinon.stub().yields null, null, uuid: 'sweet'
+        @sut.update {uuid: 'howdy', token: 'sweet'}, (@error, @device) => done()
 
       it 'should not have an error', ->
         expect(@error).to.not.exist
 
       it 'should call request.put on the device', ->
         expect(@request.put).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/howdy'
+
+      it 'should have a device', ->
+        expect(@device).to.deep.equal uuid: 'sweet'
 
     describe 'with an invalid device', ->
       beforeEach (done) ->
@@ -498,6 +501,7 @@ describe 'MeshbluHttp', ->
 
       it 'should have an error', ->
         expect(@error.message).to.equal 'body error'
+
 
   describe '->verify', ->
     beforeEach ->

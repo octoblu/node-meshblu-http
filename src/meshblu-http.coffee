@@ -139,7 +139,7 @@ class MeshbluHttp
       debug "update", error, body
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
-      callback null
+      callback null, body
 
   verify: (message, signature) =>
     @privateKey.verify stableStringify(message), signature, 'utf8', 'base64'
