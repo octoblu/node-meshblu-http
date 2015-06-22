@@ -424,7 +424,6 @@ describe 'MeshbluHttp', ->
     it 'should get a publicKey', ->
       expect(@result.publicKey).to.exist
 
-
   describe '->sign', ->
     beforeEach ->
       @sut = new MeshbluHttp {}
@@ -470,38 +469,35 @@ describe 'MeshbluHttp', ->
     beforeEach ->
       @request = put: sinon.stub()
       @dependencies = request: @request
-      @sut = new MeshbluHttp {}, @dependencies
+      @sut = new MeshbluHttp {uuid: 'uuid', token: 'token'}, @dependencies
 
-    describe 'with a device', ->
+    describe 'with a uuid and params', ->
       beforeEach (done) ->
-        @request.put = sinon.stub().yields null, null, uuid: 'sweet'
-        @sut.update {uuid: 'howdy', token: 'sweet'}, (@error, @device) => done()
+        @request.patch = sinon.stub().yields null, statusCode: 204, uuid: 'howdy'
+        @sut.update 'howdy', {sam: 'I am'}, (@error) => done()
 
       it 'should not have an error', ->
         expect(@error).to.not.exist
 
-      it 'should call request.put on the device', ->
-        expect(@request.put).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/howdy'
-
-      it 'should have a device', ->
-        expect(@device).to.deep.equal uuid: 'sweet'
+      it 'should call request.patch on the device', ->
+        expect(@request.patch).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/howdy'
 
     describe 'with an invalid device', ->
       beforeEach (done) ->
-        @request.put = sinon.stub().yields new Error('unable to update device'), null, null
-        @sut.update {uuid: 'NOPE', token: 'NO'}, (@error) => done()
+        @request.patch = sinon.stub().yields new Error('unable to update device'), null, null
+        @sut.update 'NOPE', {}, (@error) => done()
 
       it 'should have an error', ->
         expect(@error.message).to.equal 'unable to update device'
 
-    describe 'when request returns an error in the body', ->
+    describe 'when request returns an error in the body with a statusCode', ->
       beforeEach (done) ->
-        @request.put = sinon.stub().yields null, null, error: new Error('body error')
-        @sut.update {uuid: 'NOPE', token: 'NO'}, (@error) => done()
+        @request.patch = sinon.stub().yields null, {statusCode: 422}, error: 'body error'
+        @sut.update 'NOPE', {}, (@error) => done()
 
       it 'should have an error', ->
+        expect(@error).to.be.an.instanceOf Error
         expect(@error.message).to.equal 'body error'
-
 
   describe '->verify', ->
     beforeEach ->

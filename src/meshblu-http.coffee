@@ -131,14 +131,14 @@ class MeshbluHttp
       return callback new Error(body.error.message) if body?.error?
       callback null
 
-  update: (device, callback=->) =>
+  update: (uuid, params, callback=->) =>
     options = @getDefaultRequestOptions()
-    options.json = device
+    options.json = params
 
-    @request.put "#{@urlBase}/devices/#{device.uuid}", options, (error, response, body) ->
+    @request.patch "#{@urlBase}/v2/devices/#{uuid}", options, (error, response, body) ->
       debug "update", error, body
       return callback error if error?
-      return callback new Error(body.error.message) if body?.error?
+      return callback new Error(body.error) unless response.statusCode == 204
       callback null, body
 
   verify: (message, signature) =>
