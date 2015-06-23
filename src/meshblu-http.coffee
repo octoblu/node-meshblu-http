@@ -13,7 +13,7 @@ class MeshbluHttp
 
     @protocol ?= 'http'
     @protocol = 'https' if @port == 443
-    @auth = {}
+    @auth ?= {}
 
     @urlBase = "#{@protocol}://#{@server}:#{@port}"
     @request = @dependencies.request ? require 'request'
