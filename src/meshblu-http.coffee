@@ -141,6 +141,16 @@ class MeshbluHttp
       return callback new Error(body.error) unless response.statusCode == 204
       callback null, body
 
+  updateWithPut: (uuid, params, callback=->) =>
+    options = @getDefaultRequestOptions()
+    options.json = params
+
+    @request.put "#{@urlBase}/v2/devices/#{uuid}", options, (error, response, body) ->
+      debug "update", error, body
+      return callback error if error?
+      return callback new Error(body.error) unless response.statusCode == 204
+      callback null, body
+
   verify: (message, signature) =>
     @privateKey.verify stableStringify(message), signature, 'utf8', 'base64'
 

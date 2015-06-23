@@ -467,7 +467,7 @@ describe 'MeshbluHttp', ->
 
   describe '->update', ->
     beforeEach ->
-      @request = put: sinon.stub()
+      @request = {}
       @dependencies = request: @request
       @sut = new MeshbluHttp {uuid: 'uuid', token: 'token'}, @dependencies
 
@@ -494,6 +494,40 @@ describe 'MeshbluHttp', ->
       beforeEach (done) ->
         @request.patch = sinon.stub().yields null, {statusCode: 422}, error: 'body error'
         @sut.update 'NOPE', {}, (@error) => done()
+
+      it 'should have an error', ->
+        expect(@error).to.be.an.instanceOf Error
+        expect(@error.message).to.equal 'body error'
+
+  describe '->updateWithPut', ->
+    beforeEach ->
+      @request = put: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp {uuid: 'uuid', token: 'token'}, @dependencies
+
+    describe 'with a uuid and params', ->
+      beforeEach (done) ->
+        @request.put = sinon.stub().yields null, statusCode: 204, uuid: 'howdy'
+        @sut.updateWithPut 'howdy', {sam: 'I am'}, (@error) => done()
+
+      it 'should not have an error', ->
+        expect(@error).to.not.exist
+
+      it 'should call request.put on the device', ->
+        expect(@request.put).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/howdy'
+
+    describe 'with an invalid device', ->
+      beforeEach (done) ->
+        @request.put = sinon.stub().yields new Error('unable to update device'), null, null
+        @sut.updateWithPut 'NOPE', {}, (@error) => done()
+
+      it 'should have an error', ->
+        expect(@error.message).to.equal 'unable to update device'
+
+    describe 'when request returns an error in the body with a statusCode', ->
+      beforeEach (done) ->
+        @request.put = sinon.stub().yields null, {statusCode: 422}, error: 'body error'
+        @sut.updateWithPut 'NOPE', {}, (@error) => done()
 
       it 'should have an error', ->
         expect(@error).to.be.an.instanceOf Error
