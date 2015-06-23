@@ -13,7 +13,6 @@ class MeshbluHttp
 
     @protocol ?= 'http'
     @protocol = 'https' if @port == 443
-    @auth ?= {}
 
     @urlBase = "#{@protocol}://#{@server}:#{@port}"
     @request = @dependencies.request ? require 'request'
@@ -23,7 +22,8 @@ class MeshbluHttp
     _.extend json: true, @getAuthRequestOptions()
 
   getAuthRequestOptions: =>
-    return auth: @auth unless @uuid && @token
+    return auth: @auth if @auth?
+    return {} unless @uuid && @token
     auth:
       user: @uuid
       pass: @token
