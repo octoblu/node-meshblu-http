@@ -5,7 +5,7 @@ stableStringify = require 'json-stable-stringify'
 class MeshbluHttp
   constructor: (options={}, @dependencies={}) ->
     options = _.defaults(_.cloneDeep(options), port: 443, server: 'meshblu.octoblu.com')
-    {@uuid, @token, @server, @port, @protocol} = options
+    {@uuid, @token, @server, @port, @protocol, @auth} = options
     @protocol = null if @protocol == 'websocket'
     try
       @port = parseInt @port
@@ -13,6 +13,7 @@ class MeshbluHttp
 
     @protocol ?= 'http'
     @protocol = 'https' if @port == 443
+    @auth = {}
 
     @urlBase = "#{@protocol}://#{@server}:#{@port}"
     @request = @dependencies.request ? require 'request'
@@ -22,7 +23,7 @@ class MeshbluHttp
     _.extend json: true, @getAuthRequestOptions()
 
   getAuthRequestOptions: =>
-    return {} unless @uuid && @token
+    return auth: @auth unless @uuid && @token
     auth:
       user: @uuid
       pass: @token
