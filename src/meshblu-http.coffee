@@ -142,7 +142,7 @@ class MeshbluHttp
       return callback new Error(body.error) unless response.statusCode == 204
       callback null, body
 
-  updateWithPut: (uuid, params, callback=->) =>
+  updateDangerously: (uuid, params, callback=->) =>
     options = @getDefaultRequestOptions()
     options.json = params
 

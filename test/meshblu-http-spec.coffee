@@ -499,7 +499,7 @@ describe 'MeshbluHttp', ->
         expect(@error).to.be.an.instanceOf Error
         expect(@error.message).to.equal 'body error'
 
-  describe '->updateWithPut', ->
+  describe '->updateDangerously', ->
     beforeEach ->
       @request = put: sinon.stub()
       @dependencies = request: @request
@@ -508,7 +508,7 @@ describe 'MeshbluHttp', ->
     describe 'with a uuid and params', ->
       beforeEach (done) ->
         @request.put = sinon.stub().yields null, statusCode: 204, uuid: 'howdy'
-        @sut.updateWithPut 'howdy', {sam: 'I am'}, (@error) => done()
+        @sut.updateDangerously 'howdy', {sam: 'I am'}, (@error) => done()
 
       it 'should not have an error', ->
         expect(@error).to.not.exist
@@ -519,7 +519,7 @@ describe 'MeshbluHttp', ->
     describe 'with an invalid device', ->
       beforeEach (done) ->
         @request.put = sinon.stub().yields new Error('unable to update device'), null, null
-        @sut.updateWithPut 'NOPE', {}, (@error) => done()
+        @sut.updateDangerously 'NOPE', {}, (@error) => done()
 
       it 'should have an error', ->
         expect(@error.message).to.equal 'unable to update device'
@@ -527,7 +527,7 @@ describe 'MeshbluHttp', ->
     describe 'when request returns an error in the body with a statusCode', ->
       beforeEach (done) ->
         @request.put = sinon.stub().yields null, {statusCode: 422}, error: 'body error'
-        @sut.updateWithPut 'NOPE', {}, (@error) => done()
+        @sut.updateDangerously 'NOPE', {}, (@error) => done()
 
       it 'should have an error', ->
         expect(@error).to.be.an.instanceOf Error
