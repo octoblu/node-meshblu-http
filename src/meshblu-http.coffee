@@ -89,6 +89,17 @@ class MeshbluHttp
 
       callback null, body
 
+  publicKey: (deviceUuid, callback=->) =>
+    options = @getDefaultRequestOptions()
+
+    @request.get "#{@urlBase}/devices/#{deviceUuid}/publickey", options, (error, response, body) ->
+      debug "publicKey", error, body
+      return callback error if error?
+      return callback new Error(body.error.message) if body?.error?
+      return callback new Error(body.message || body) if response.statusCode != 200
+
+      callback null, body
+
   register: (device, callback=->) =>
     options = @getDefaultRequestOptions()
     options.json = device

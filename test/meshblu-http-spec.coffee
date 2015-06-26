@@ -580,3 +580,43 @@ describe 'MeshbluHttp', ->
 
       it 'should callback with an error', ->
         expect(@error).to.deep.equal new Error
+
+  describe '->publicKey', ->
+    beforeEach ->
+      @request = get: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp {}, @dependencies
+
+    describe 'when given a valid uuid', ->
+      beforeEach (done) ->
+        @request.get.yields null, {statusCode: 200}, foo: 'bar'
+        @sut.publicKey 'my-uuid', (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/my-uuid/publickey'
+
+      it 'should call callback', ->
+        expect(@body).to.deep.equal foo: 'bar'
+
+    describe 'when an error happens', ->
+      beforeEach (done) ->
+        @request.get.yields new Error
+        @dependencies = request: @request
+        @sut.publicKey 'my-uuid', (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/my-uuid/publickey'
+
+      it 'should callback with an error', ->
+        expect(@error).to.deep.equal new Error
+
+    describe 'when a meshblu error body is returned', ->
+      beforeEach (done) ->
+        @request.get.yields null, null, error: 'something wrong'
+        @sut.publicKey 'my-uuid', (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/my-uuid/publickey'
+
+      it 'should callback with an error', ->
+        expect(@error).to.deep.equal new Error
