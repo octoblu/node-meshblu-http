@@ -30,13 +30,17 @@ class MeshbluHttp
 
   createSubscription: (options, callback) =>
     url = @_subscriptionUrl options
-    @request.post url, (error, response, body) =>
+    requestOptions = @getDefaultRequestOptions()
+
+    @request.post url, requestOptions, (error, response, body) =>
       return callback new Error(body.error) if response.statusCode != 201
       callback()
 
   deleteSubscription: (options, callback) =>
     url = @_subscriptionUrl options
-    @request.delete url, (error, response, body) =>
+    requestOptions = @getDefaultRequestOptions()
+
+    @request.delete url, requestOptions, (error, response, body) =>
       return callback new Error(body.error) if response.statusCode != 204
       callback()
 
