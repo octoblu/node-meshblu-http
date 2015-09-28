@@ -633,11 +633,12 @@ describe 'MeshbluHttp', ->
         options =
           subscriberId: 'my-uuid'
           emitterId: 'device-uuid'
+          type: 'broadcast'
 
         @sut.createSubscription options, (@error, @body) => done()
 
       it 'should call post', ->
-        url = 'https://meshblu.octoblu.com:443/devices/my-uuid/subscriptions/device-uuid'
+        url = 'https://meshblu.octoblu.com:443/devices/my-uuid/subscriptions/device-uuid/broadcast'
         expect(@request.post).to.have.been.calledWith url
 
     describe 'when given an invalid uuid', ->
@@ -646,11 +647,12 @@ describe 'MeshbluHttp', ->
         options =
           subscriberId: 'my-invalid-uuid'
           emitterId: 'device-uuid'
+          type: 'received'
 
         @sut.createSubscription options, (@error, @body) => done()
 
       it 'should call post', ->
-        url = 'https://meshblu.octoblu.com:443/devices/my-invalid-uuid/subscriptions/device-uuid'
+        url = 'https://meshblu.octoblu.com:443/devices/my-invalid-uuid/subscriptions/device-uuid/received'
         expect(@request.post).to.have.been.calledWith url
 
     describe 'when given an valid uuid that meshblu thinks is invalid', ->
@@ -659,6 +661,7 @@ describe 'MeshbluHttp', ->
         options =
           subscriberId: 'my-other-uuid'
           emitterId: 'device-uuid'
+          type: 'nvm'
 
         @sut.createSubscription options, (@error, @body) => done()
 
@@ -677,11 +680,12 @@ describe 'MeshbluHttp', ->
         options =
           subscriberId: 'my-uuid'
           emitterId: 'device-uuid'
+          type: 'facebook'
 
         @sut.deleteSubscription options, (@error, @body) => done()
 
       it 'should call post', ->
-        url = 'https://meshblu.octoblu.com:443/devices/my-uuid/subscriptions/device-uuid'
+        url = 'https://meshblu.octoblu.com:443/devices/my-uuid/subscriptions/device-uuid/facebook'
         expect(@request.delete).to.have.been.calledWith url
 
     describe 'when given an invalid uuid', ->
@@ -690,15 +694,15 @@ describe 'MeshbluHttp', ->
         options =
           subscriberId: 'my-invalid-uuid'
           emitterId: 'device-uuid'
+          type: 'twitter'
 
         @sut.deleteSubscription options, (@error, @body) => done()
 
       it 'should call post', ->
-        url = 'https://meshblu.octoblu.com:443/devices/my-invalid-uuid/subscriptions/device-uuid'
+        url = 'https://meshblu.octoblu.com:443/devices/my-invalid-uuid/subscriptions/device-uuid/twitter'
         expect(@request.delete).to.have.been.calledWith url
 
       it 'should not yield an error', ->
-        url = 'https://meshblu.octoblu.com:443/devices/my-invalid-uuid/subscriptions/device-uuid'
         expect(@error).to.not.exist
 
     describe 'when given an valid uuid that meshblu thinks is invalid', ->
@@ -707,6 +711,7 @@ describe 'MeshbluHttp', ->
         options =
           subscriberId: 'my-other-uuid'
           emitterId: 'device-uuid'
+          type: 'knull'
 
         @sut.deleteSubscription options, (@error, @body) => done()
 
