@@ -33,7 +33,7 @@ class MeshbluHttp
     requestOptions = @getDefaultRequestOptions()
 
     @request.post url, requestOptions, (error, response, body) =>
-      return callback new Error(body.error) if response.statusCode != 201
+      return callback new Error(body?.error ? 'Unknown Error Occurred') if response.statusCode != 204
       callback()
 
   deleteSubscription: (options, callback) =>
@@ -41,7 +41,7 @@ class MeshbluHttp
     requestOptions = @getDefaultRequestOptions()
 
     @request.delete url, requestOptions, (error, response, body) =>
-      return callback new Error(body.error) if response.statusCode != 204
+      return callback new Error(body?.error ? 'Unknown Error Occurred') if response.statusCode != 204
       callback()
 
   _subscriptionUrl: (options) =>

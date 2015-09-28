@@ -629,7 +629,7 @@ describe 'MeshbluHttp', ->
 
     describe 'when given a valid uuid', ->
       beforeEach (done) ->
-        @request.post.yields null, {statusCode: 201}, {}
+        @request.post.yields null, {statusCode: 204}, null
         options =
           subscriberId: 'my-uuid'
           emitterId: 'device-uuid'
@@ -643,7 +643,7 @@ describe 'MeshbluHttp', ->
 
     describe 'when given an invalid uuid', ->
       beforeEach (done) ->
-        @request.post.yields null, {statusCode: 201}, {}
+        @request.post.yields null, {statusCode: 204}, {}
         options =
           subscriberId: 'my-invalid-uuid'
           emitterId: 'device-uuid'
@@ -717,3 +717,16 @@ describe 'MeshbluHttp', ->
 
       it 'should yield an error', ->
         expect(=> throw @error).to.throw 'message'
+
+    describe 'when something went wrong, but who knows what?', ->
+      beforeEach (done) ->
+        @request.delete.yields null, {statusCode: 472}, null
+        options =
+          subscriberId: 'my-other-uuid'
+          emitterId: 'device-uuid'
+          type: 'knull'
+
+        @sut.deleteSubscription options, (@error, @body) => done()
+
+      it 'should yield an error', ->
+        expect(=> throw @error).to.throw 'Unknown Error Occurred'
