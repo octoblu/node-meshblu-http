@@ -28,6 +28,18 @@ class MeshbluHttp
       user: @uuid
       pass: @token
 
+  createSubscription: (options, callback) =>
+    {subscriberId, emitterId} = options
+    @request.post "#{@urlBase}/devices/#{subscriberId}/subscriptions/#{emitterId}", (error, response, body) =>
+      return callback new Error(body.error) if response.statusCode != 201
+      callback()
+
+  deleteSubscription: (options, callback) =>
+    {subscriberId, emitterId} = options
+    @request.delete "#{@urlBase}/devices/#{subscriberId}/subscriptions/#{emitterId}", (error, response, body) =>
+      return callback new Error(body.error) if response.statusCode != 204
+      callback()
+
   device: (deviceUuid, callback=->) =>
     options = @getDefaultRequestOptions()
 

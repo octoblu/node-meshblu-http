@@ -620,3 +620,95 @@ describe 'MeshbluHttp', ->
 
       it 'should callback with an error', ->
         expect(@error).to.deep.equal new Error
+
+  describe '->createSubscription', ->
+    beforeEach ->
+      @request = post: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp {}, @dependencies
+
+    describe 'when given a valid uuid', ->
+      beforeEach (done) ->
+        @request.post.yields null, {statusCode: 201}, {}
+        options =
+          subscriberId: 'my-uuid'
+          emitterId: 'device-uuid'
+
+        @sut.createSubscription options, (@error, @body) => done()
+
+      it 'should call post', ->
+        url = 'https://meshblu.octoblu.com:443/devices/my-uuid/subscriptions/device-uuid'
+        expect(@request.post).to.have.been.calledWith url
+
+    describe 'when given an invalid uuid', ->
+      beforeEach (done) ->
+        @request.post.yields null, {statusCode: 201}, {}
+        options =
+          subscriberId: 'my-invalid-uuid'
+          emitterId: 'device-uuid'
+
+        @sut.createSubscription options, (@error, @body) => done()
+
+      it 'should call post', ->
+        url = 'https://meshblu.octoblu.com:443/devices/my-invalid-uuid/subscriptions/device-uuid'
+        expect(@request.post).to.have.been.calledWith url
+
+    describe 'when given an valid uuid that meshblu thinks is invalid', ->
+      beforeEach (done) ->
+        @request.post.yields null, {statusCode: 422}, {error: 'message'}
+        options =
+          subscriberId: 'my-other-uuid'
+          emitterId: 'device-uuid'
+
+        @sut.createSubscription options, (@error, @body) => done()
+
+      it 'should yield an error', ->
+        expect(=> throw @error).to.throw 'message'
+
+  describe '->deleteSubscription', ->
+    beforeEach ->
+      @request = delete: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp {}, @dependencies
+
+    describe 'when given a valid uuid', ->
+      beforeEach (done) ->
+        @request.delete.yields null, {statusCode: 204}, {}
+        options =
+          subscriberId: 'my-uuid'
+          emitterId: 'device-uuid'
+
+        @sut.deleteSubscription options, (@error, @body) => done()
+
+      it 'should call post', ->
+        url = 'https://meshblu.octoblu.com:443/devices/my-uuid/subscriptions/device-uuid'
+        expect(@request.delete).to.have.been.calledWith url
+
+    describe 'when given an invalid uuid', ->
+      beforeEach (done) ->
+        @request.delete.yields null, {statusCode: 204}, {}
+        options =
+          subscriberId: 'my-invalid-uuid'
+          emitterId: 'device-uuid'
+
+        @sut.deleteSubscription options, (@error, @body) => done()
+
+      it 'should call post', ->
+        url = 'https://meshblu.octoblu.com:443/devices/my-invalid-uuid/subscriptions/device-uuid'
+        expect(@request.delete).to.have.been.calledWith url
+
+      it 'should not yield an error', ->
+        url = 'https://meshblu.octoblu.com:443/devices/my-invalid-uuid/subscriptions/device-uuid'
+        expect(@error).to.not.exist
+
+    describe 'when given an valid uuid that meshblu thinks is invalid', ->
+      beforeEach (done) ->
+        @request.delete.yields null, {statusCode: 422}, {error: 'message'}
+        options =
+          subscriberId: 'my-other-uuid'
+          emitterId: 'device-uuid'
+
+        @sut.deleteSubscription options, (@error, @body) => done()
+
+      it 'should yield an error', ->
+        expect(=> throw @error).to.throw 'message'
