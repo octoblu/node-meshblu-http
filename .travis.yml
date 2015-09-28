@@ -29,7 +29,7 @@ deploy:
   clean_up: false
   email: serveradmin@octoblu.com
   api_key:
-    secure: B/fM9GvTo/9c+qglKXmJVBh/IsK6MHSRDWr9pYD4ejYExk0AEG+ZDb0+5C2Qa2dVQ+3Wn3vlphG1n7T2KnIw0lOG3UAYWqGL9lgkTef/IpfsHJWZCqV/FOuuFeaU73YW/XF1MXn2fwV/y/MPaBE6y9dkjbDa3zUYHBH1S3cimj4=
+    secure: BjmgbmOzhOkQSJHofpMwD1u5NvJKHK86DBcl+KZEWlYYjvFxV9v7zaUpPUMSBualjRp69hLi3yGm9RcFcQ7okRs3NscKu612mtQYksobWAhWK7TIM+2m2JV2w6iw6sIGEhp2XZ8EV6p80xdQ2QBHlQPYS5EcYylR+E1DPcvjJu/s=
   on:
     tags: true
-    all_branches: true
+    branches: true
