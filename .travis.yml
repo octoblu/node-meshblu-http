@@ -2,6 +2,13 @@ sudo: false
 language: node_js
 node_js:
 - '0.11'
+addons:
+  code_climate:
+    repo_token: <REPO TOKEN GOES HERE>
+before_script:
+- npm install -g codeclimate-test-reporter
+after_script:
+- codeclimate-test-reporter < coverage/lcov.info
 before_deploy:
 - npm install browserify coffeeify
 - mkdir -p deploy/meshblu-http/latest
@@ -25,11 +32,9 @@ deploy:
     tags: true
     all_branches: true
 - provider: npm
-  skip_cleanup: true
-  clean_up: false
   email: serveradmin@octoblu.com
   api_key:
-    secure: BjmgbmOzhOkQSJHofpMwD1u5NvJKHK86DBcl+KZEWlYYjvFxV9v7zaUpPUMSBualjRp69hLi3yGm9RcFcQ7okRs3NscKu612mtQYksobWAhWK7TIM+2m2JV2w6iw6sIGEhp2XZ8EV6p80xdQ2QBHlQPYS5EcYylR+E1DPcvjJu/s=
+    secure: cxokfBSMpeaEsvWCpL8cHRwPVCSyzyq2uwUIVAH6cEFnumRxUCMsAti/DQq1QUsVf+aYW5IvkvLRCvAusXc+wdf6UrayjTCjO5zLflnh08qbmtVpftlyfEb3UpiqykoTDxeNDRbGmlof9QX2zxUsLg9CmJPP98t4qEMseGFZdFI=
   on:
     tags: true
     branches: true
