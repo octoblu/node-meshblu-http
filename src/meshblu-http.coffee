@@ -29,16 +29,20 @@ class MeshbluHttp
       pass: @token
 
   createSubscription: (options, callback) =>
-    {subscriberId, emitterId, type} = options
-    @request.post "#{@urlBase}/devices/#{subscriberId}/subscriptions/#{emitterId}/#{type}", (error, response, body) =>
+    url = @_subscriptionUrl options
+    @request.post url, (error, response, body) =>
       return callback new Error(body.error) if response.statusCode != 201
       callback()
 
   deleteSubscription: (options, callback) =>
-    {subscriberId, emitterId, type} = options
-    @request.delete "#{@urlBase}/devices/#{subscriberId}/subscriptions/#{emitterId}/#{type}", (error, response, body) =>
+    url = @_subscriptionUrl options
+    @request.delete url, (error, response, body) =>
       return callback new Error(body.error) if response.statusCode != 204
       callback()
+
+  _subscriptionUrl: (options) =>
+    {subscriberId, emitterId, type} = options
+    "#{@urlBase}/v2/devices/#{subscriberId}/subscriptions/#{emitterId}/#{type}"
 
   device: (deviceUuid, callback=->) =>
     options = @getDefaultRequestOptions()
@@ -144,7 +148,7 @@ class MeshbluHttp
     @privateKey = new @NodeRSA privateKey
 
   sign: (data) =>
-    @privateKey.sign(stableStringify(data)).toString('base64');
+    @privateKey.sign(stableStringify(data)).toString('base64')
 
   unregister: (device, callback=->) =>
     options = @getDefaultRequestOptions()

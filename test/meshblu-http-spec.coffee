@@ -638,7 +638,7 @@ describe 'MeshbluHttp', ->
         @sut.createSubscription options, (@error, @body) => done()
 
       it 'should call post', ->
-        url = 'https://meshblu.octoblu.com:443/devices/my-uuid/subscriptions/device-uuid/broadcast'
+        url = 'https://meshblu.octoblu.com:443/v2/devices/my-uuid/subscriptions/device-uuid/broadcast'
         expect(@request.post).to.have.been.calledWith url
 
     describe 'when given an invalid uuid', ->
@@ -652,7 +652,7 @@ describe 'MeshbluHttp', ->
         @sut.createSubscription options, (@error, @body) => done()
 
       it 'should call post', ->
-        url = 'https://meshblu.octoblu.com:443/devices/my-invalid-uuid/subscriptions/device-uuid/received'
+        url = 'https://meshblu.octoblu.com:443/v2/devices/my-invalid-uuid/subscriptions/device-uuid/received'
         expect(@request.post).to.have.been.calledWith url
 
     describe 'when given an valid uuid that meshblu thinks is invalid', ->
@@ -685,7 +685,7 @@ describe 'MeshbluHttp', ->
         @sut.deleteSubscription options, (@error, @body) => done()
 
       it 'should call post', ->
-        url = 'https://meshblu.octoblu.com:443/devices/my-uuid/subscriptions/device-uuid/facebook'
+        url = 'https://meshblu.octoblu.com:443/v2/devices/my-uuid/subscriptions/device-uuid/facebook'
         expect(@request.delete).to.have.been.calledWith url
 
     describe 'when given an invalid uuid', ->
@@ -699,7 +699,7 @@ describe 'MeshbluHttp', ->
         @sut.deleteSubscription options, (@error, @body) => done()
 
       it 'should call post', ->
-        url = 'https://meshblu.octoblu.com:443/devices/my-invalid-uuid/subscriptions/device-uuid/twitter'
+        url = 'https://meshblu.octoblu.com:443/v2/devices/my-invalid-uuid/subscriptions/device-uuid/twitter'
         expect(@request.delete).to.have.been.calledWith url
 
       it 'should not yield an error', ->
