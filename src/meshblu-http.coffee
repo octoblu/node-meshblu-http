@@ -5,7 +5,7 @@ stableStringify = require 'json-stable-stringify'
 class MeshbluHttp
   constructor: (options={}, @dependencies={}) ->
     options = _.defaults(_.cloneDeep(options), port: 443, server: 'meshblu.octoblu.com')
-    {@uuid, @token, @server, @port, @protocol, @auth} = options
+    {@uuid, @token, @server, @port, @protocol, @auth, @raw} = options
     @protocol = null if @protocol == 'websocket'
     try
       @port = parseInt @port
@@ -20,6 +20,10 @@ class MeshbluHttp
 
   getDefaultRequestOptions: =>
     _.extend json: true, @getAuthRequestOptions()
+
+  getRawRequestOptions: =>
+    headers = 'content-type' : 'application/json'
+    _.extend json: false, headers: headers, @getAuthRequestOptions()
 
   getAuthRequestOptions: =>
     return auth: @auth if @auth?
@@ -97,11 +101,18 @@ class MeshbluHttp
 
     privateKey: key.exportKey('private'), publicKey: key.exportKey('public')
 
-  message: (message, callback=->) =>
-    options = @getDefaultRequestOptions()
-    options.json = message
+  message: (message, callback) =>
+    if @raw
+      options = @getRawRequestOptions()
+      options.body = message
+    else
+      options = @getDefaultRequestOptions()
+      options.json = message
 
     debug 'POST', "#{@urlBase}/messages", options
+
+    return @request.post "#{@urlBase}/messages", options unless callback?
+
     @request.post "#{@urlBase}/messages", options, (error, response, body) ->
       debug "message", error, body
       return callback error if error?
