@@ -156,7 +156,7 @@ describe 'MeshbluHttp', ->
 
     describe 'with a valid uuid', ->
       beforeEach (done) ->
-        @request.post.yields null, null, foo: 'bar'
+        @request.post.yields null, statusCode: 201, {foo: 'bar'}
         @sut.generateAndStoreToken 'uuid', (@error, @body) => done()
 
       it 'should call get', ->
@@ -167,7 +167,7 @@ describe 'MeshbluHttp', ->
 
     describe 'when an error happens', ->
       beforeEach (done) ->
-        @request.post.yields new Error
+        @request.post.yields new Error(), statusCode: 201
         @sut.generateAndStoreToken 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
@@ -178,7 +178,7 @@ describe 'MeshbluHttp', ->
 
     describe 'when a meshblu error body is returned', ->
       beforeEach (done) ->
-        @request.post.yields null, null, error: 'something wrong'
+        @request.post.yields null, statusCode: 201, {error: 'something wrong'}
         @sut.generateAndStoreToken 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
@@ -186,6 +186,17 @@ describe 'MeshbluHttp', ->
 
       it 'should callback with an error', ->
         expect(@error).to.deep.equal new Error
+
+    describe 'when a bad error code is returned', ->
+      beforeEach (done) ->
+        @request.post.yields null, statusCode: 400, "Device not found"
+        @sut.generateAndStoreToken 'invalid-uuid', (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/invalid-uuid/tokens'
+
+      it 'should callback with an error', ->
+        expect(@error.message).to.deep.equal "Device not found"
 
   describe '->mydevices', ->
     beforeEach ->

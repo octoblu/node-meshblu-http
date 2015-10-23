@@ -92,6 +92,7 @@ class MeshbluHttp
       debug "generateAndStoreToken", error, body
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
+      return callback new Error(body) if response.statusCode >= 400
 
       callback null, body
 
