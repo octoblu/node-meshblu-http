@@ -289,7 +289,7 @@ describe 'MeshbluHttp', ->
 
     describe 'with a device', ->
       beforeEach (done) ->
-        @request.post = sinon.stub().yields null, null, null
+        @request.post = sinon.stub().yields null, statusCode: 201, null
         @sut.register {uuid: 'howdy', token: 'sweet'}, (@error) => done()
 
       it 'should not have an error', ->
@@ -300,7 +300,7 @@ describe 'MeshbluHttp', ->
 
     describe 'with an invalid device', ->
       beforeEach (done) ->
-        @request.post = sinon.stub().yields new Error('unable to register device'), null, null
+        @request.post = sinon.stub().yields new Error('unable to register device'), statusCode: 500, null
         @sut.register {uuid: 'NOPE', token: 'NO'}, (@error) => done()
 
       it 'should have an error', ->
@@ -308,11 +308,19 @@ describe 'MeshbluHttp', ->
 
     describe 'when request returns an error in the body', ->
       beforeEach (done) ->
-        @request.post = sinon.stub().yields null, null, error: new Error('body error')
+        @request.post = sinon.stub().yields null, {statusCode: 200}, error: new Error('body error')
         @sut.register {uuid: 'NOPE', token: 'NO'}, (@error) => done()
 
       it 'should have an error', ->
         expect(@error.message).to.equal 'body error'
+
+    describe 'when request returns an error statusCode', ->
+      beforeEach (done) ->
+        @request.post = sinon.stub().yields null, statusCode: 500, 'plain body error'
+        @sut.register {uuid: 'NOPE', token: 'NO'}, (@error) => done()
+
+      it 'should have an error', ->
+        expect(@error.message).to.equal 'plain body error'
 
   describe '->resetToken', ->
     beforeEach ->

@@ -136,10 +136,11 @@ class MeshbluHttp
     options = @getDefaultRequestOptions()
     options.json = device
 
-    @request.post "#{@urlBase}/devices", options, (error, response, body) ->
+    @request.post "#{@urlBase}/devices", options, (error, response, body={}) ->
       debug "register", error, body
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
+      return callback new Error(body.message || body) if response.statusCode >= 400
       callback null, body
 
   resetToken: (deviceUuid, callback=->) =>
