@@ -154,10 +154,11 @@ class MeshbluHttp
   revokeToken: (deviceUuid, deviceToken, callback=->) =>
     options = @getDefaultRequestOptions()
 
-    @request.del "#{@urlBase}/devices/#{deviceUuid}/tokens/#{deviceToken}", options, (error, response, body) ->
+    @request.del "#{@urlBase}/devices/#{deviceUuid}/tokens/#{deviceToken}", options, (error, response, body={}) ->
       debug "revokeToken", error, body
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
+      return callback new Error(body.message || body) if response.statusCode >= 400
       callback null
 
   setPrivateKey: (privateKey) =>

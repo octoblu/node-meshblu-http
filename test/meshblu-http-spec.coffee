@@ -373,7 +373,7 @@ describe 'MeshbluHttp', ->
 
     describe 'with a valid uuid', ->
       beforeEach (done) ->
-        @request.del.yields null, null, null
+        @request.del.yields null, statusCode: 204, null
         @sut.revokeToken 'uuid', 'taken', (@error, @body) => done()
 
       it 'should call del', ->
@@ -384,7 +384,7 @@ describe 'MeshbluHttp', ->
 
     describe 'when an error happens', ->
       beforeEach (done) ->
-        @request.del.yields new Error
+        @request.del.yields new Error(), {}
         @sut.revokeToken 'invalid-uuid', 'tekken', (@error, @body) => done()
 
       it 'should call del', ->
@@ -395,7 +395,7 @@ describe 'MeshbluHttp', ->
 
     describe 'when a meshblu error body is returned', ->
       beforeEach (done) ->
-        @request.del.yields null, null, error: 'something wrong'
+        @request.del.yields null, statusCode: 204, {error: 'something wrong'}
         @sut.revokeToken 'invalid-uuid', 'tkoen', (@error, @body) => done()
 
       it 'should call del', ->
@@ -403,6 +403,17 @@ describe 'MeshbluHttp', ->
 
       it 'should callback with an error', ->
         expect(@error).to.deep.equal new Error
+
+    describe 'when a meshblu error statusCode is returned', ->
+      beforeEach (done) ->
+        @request.del.yields null, {statusCode: 400}, 'something wrong'
+        @sut.revokeToken 'invalid-uuid', 'tkoen', (@error, @body) => done()
+
+      it 'should call del', ->
+        expect(@request.del).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/invalid-uuid/tokens/tkoen'
+
+      it 'should callback with an error', ->
+        expect(@error.message).to.deep.equal 'something wrong'
 
   describe '->setPrivateKey', ->
     beforeEach ->
