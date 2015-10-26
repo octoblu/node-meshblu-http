@@ -206,7 +206,7 @@ describe 'MeshbluHttp', ->
 
     describe 'with a valid query', ->
       beforeEach (done) ->
-        @request.get.yields null, null, foo: 'bar'
+        @request.get.yields null, {statusCode: 200}, foo: 'bar'
         @sut.mydevices type: 'octoblu:test', (@error, @body) => done()
 
       it 'should call get', ->
@@ -220,7 +220,7 @@ describe 'MeshbluHttp', ->
 
     describe 'when an error happens', ->
       beforeEach (done) ->
-        @request.get.yields new Error
+        @request.get.yields new Error(), {statusCode: 404}
         @sut.mydevices 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
@@ -231,7 +231,7 @@ describe 'MeshbluHttp', ->
 
     describe 'when a meshblu error body is returned', ->
       beforeEach (done) ->
-        @request.get.yields null, null, error: 'something wrong'
+        @request.get.yields null, {statusCode: 404}, error: 'something wrong'
         @sut.mydevices 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
@@ -239,6 +239,17 @@ describe 'MeshbluHttp', ->
 
       it 'should callback with an error', ->
         expect(@error).to.deep.equal new Error
+
+    describe 'when a meshblu error body is returned', ->
+      beforeEach (done) ->
+        @request.get.yields null, {statusCode: 404}, "Something went wrong"
+        @sut.mydevices 'invalid-uuid', (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/mydevices'
+
+      it 'should callback with an error', ->
+        expect(@error.message).to.deep.equal "Something went wrong"
 
   describe '->message', ->
     beforeEach ->

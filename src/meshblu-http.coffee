@@ -82,6 +82,7 @@ class MeshbluHttp
       debug "mydevices", error, body
       return callback error if error?
       return callback new Error(body.error) if body?.error?
+      return callback new Error(body) if response.statusCode >= 400
 
       callback null, body
 
