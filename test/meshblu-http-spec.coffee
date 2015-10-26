@@ -470,7 +470,7 @@ describe 'MeshbluHttp', ->
 
     describe 'with a device', ->
       beforeEach (done) ->
-        @request.del = sinon.stub().yields null, null, null
+        @request.del = sinon.stub().yields null, {statusCode: 200}, null
         @sut.unregister {uuid: 'howdy', token: 'sweet'}, (@error) => done()
 
       it 'should not have an error', ->
@@ -481,7 +481,7 @@ describe 'MeshbluHttp', ->
 
     describe 'with an invalid device', ->
       beforeEach (done) ->
-        @request.del = sinon.stub().yields new Error('unable to delete device'), null, null
+        @request.del = sinon.stub().yields new Error('unable to delete device'), {statusCode: 404}, "Device not found"
         @sut.unregister {uuid: 'NOPE', token: 'NO'}, (@error) => done()
 
       it 'should have an error', ->
@@ -489,11 +489,19 @@ describe 'MeshbluHttp', ->
 
     describe 'when request returns an error in the body', ->
       beforeEach (done) ->
-        @request.del = sinon.stub().yields null, null, error: new Error('body error')
+        @request.del = sinon.stub().yields null, {statusCode: 404}, error: new Error('body error')
         @sut.unregister {uuid: 'NOPE', token: 'NO'}, (@error) => done()
 
       it 'should have an error', ->
         expect(@error.message).to.equal 'body error'
+
+    describe 'when request returns an error in the body', ->
+      beforeEach (done) ->
+        @request.del = sinon.stub().yields null, {statusCode: 404}, "Device not found"
+        @sut.unregister {uuid: 'NOPE', token: 'NO'}, (@error) => done()
+
+      it 'should have an error', ->
+        expect(@error.message).to.equal 'Device not found'
 
   describe '->update', ->
     beforeEach ->
