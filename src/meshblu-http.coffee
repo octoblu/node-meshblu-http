@@ -59,7 +59,7 @@ class MeshbluHttp
       debug "device", error, body
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
-      return callback new Error(body.message || body) if response.statusCode != 200
+      return callback new Error(body?.message || body) if response.statusCode != 200
 
       callback null, body
 
@@ -70,7 +70,7 @@ class MeshbluHttp
     @request.get "#{@urlBase}/devices", options, (error, response, body) ->
       debug "devices", error, body
       return callback error if error?
-      return callback new Error(body.error) if body?.error?
+      return callback new Error(body?.error) if body?.error?
 
       callback null, body
 
@@ -81,7 +81,7 @@ class MeshbluHttp
     @request.get "#{@urlBase}/mydevices", options, (error, response, body) ->
       debug "mydevices", error, body
       return callback error if error?
-      return callback new Error(body.error) if body?.error?
+      return callback new Error(body?.error) if body?.error?
       return callback new Error(body) if response.statusCode >= 400
 
       callback null, body
@@ -118,7 +118,7 @@ class MeshbluHttp
     @request.post "#{@urlBase}/messages", options, (error, response, body) ->
       debug "message", error, body
       return callback error if error?
-      return callback new Error(body.error) if body?.error?
+      return callback new Error(body?.error) if body?.error?
 
       callback null, body
 
@@ -129,7 +129,7 @@ class MeshbluHttp
       debug "publicKey", error, body
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
-      return callback new Error(body.message || body) if response.statusCode != 200
+      return callback new Error(body?.message || body) if response.statusCode != 200
 
       callback null, body
 
@@ -141,7 +141,7 @@ class MeshbluHttp
       debug "register", error, body
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
-      return callback new Error(body.message || body) if response.statusCode >= 400
+      return callback new Error(body?.message || body) if response.statusCode >= 400
       callback null, body
 
   resetToken: (deviceUuid, callback=->) =>
@@ -149,7 +149,7 @@ class MeshbluHttp
     url = "#{@urlBase}/devices/#{deviceUuid}/token"
     @request.post url, options, (error, response, body) =>
       return callback error if error?
-      return callback new Error body.error unless response.statusCode == 201
+      return callback new Error(body?.error) unless response.statusCode == 201
 
       callback null, body
 
@@ -160,7 +160,7 @@ class MeshbluHttp
       debug "revokeToken", error, body
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
-      return callback new Error(body.message || body) if response.statusCode >= 400
+      return callback new Error(body?.message || body) if response.statusCode >= 400
       callback null
 
   setPrivateKey: (privateKey) =>
@@ -176,7 +176,7 @@ class MeshbluHttp
       debug "unregister", error, body
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
-      return callback new Error(body.message || body) if response.statusCode >= 400
+      return callback new Error(body?.message || body) if response.statusCode >= 400
       callback null
 
   update: (uuid, params, callback=->) =>
@@ -186,7 +186,7 @@ class MeshbluHttp
     @request.patch "#{@urlBase}/v2/devices/#{uuid}", options, (error, response, body) ->
       debug "update", error, body
       return callback error if error?
-      return callback new Error(body.error) unless response.statusCode == 204
+      return callback new Error(body?.error) unless response.statusCode == 204
       callback null, body
 
   updateDangerously: (uuid, params, callback=->) =>
@@ -196,7 +196,7 @@ class MeshbluHttp
     @request.put "#{@urlBase}/v2/devices/#{uuid}", options, (error, response, body) ->
       debug "update", error, body
       return callback error if error?
-      return callback new Error(body.error) unless response.statusCode == 204
+      return callback new Error(body?.error) unless response.statusCode == 204
       callback null, body
 
   verify: (message, signature) =>
@@ -209,7 +209,7 @@ class MeshbluHttp
       debug "whoami", error, body
       return callback error if error?
       return callback new Error(body.error.message) if body?.error?
-      return callback new Error(body.message || body) if response.statusCode != 200
+      return callback new Error(body?.message || body) if response.statusCode != 200
 
       callback null, body
 
