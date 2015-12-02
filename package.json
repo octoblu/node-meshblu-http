@@ -1,10 +1,10 @@
 {
   "name": "meshblu-http",
-  "version": "3.5.11",
+  "version": "3.6.0",
   "description": "Meshblu HTTP API",
   "main": "index.js",
   "scripts": {
-    "test": "istanbul cover _mocha -- -R spec"
+    "test": "istanbul cover _mocha -- -R spec --require coffee-coverage/register-istanbul"
   },
   "repository": {
     "type": "git",

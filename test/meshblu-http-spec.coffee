@@ -93,18 +93,18 @@ describe 'MeshbluHttp', ->
         expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/invalid-uuid'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
     describe 'when a meshblu error body is returned', ->
       beforeEach (done) ->
-        @request.get.yields null, null, error: 'something wrong'
+        @request.get.yields null, {statusCode: 500}, error: 'something wrong'
         @sut.device 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
         expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/invalid-uuid'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
   describe '->devices', ->
     beforeEach ->
@@ -135,18 +135,18 @@ describe 'MeshbluHttp', ->
         expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
     describe 'when a meshblu error body is returned', ->
       beforeEach (done) ->
-        @request.get.yields null, null, error: 'something wrong'
+        @request.get.yields null, {statusCode: 500}, error: 'something wrong'
         @sut.devices 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
         expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
   describe '->generateAndStoreToken', ->
     beforeEach ->
@@ -174,7 +174,7 @@ describe 'MeshbluHttp', ->
         expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/invalid-uuid/tokens'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
     describe 'when a meshblu error body is returned', ->
       beforeEach (done) ->
@@ -185,7 +185,7 @@ describe 'MeshbluHttp', ->
         expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/invalid-uuid/tokens'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
     describe 'when a bad error code is returned', ->
       beforeEach (done) ->
@@ -227,7 +227,7 @@ describe 'MeshbluHttp', ->
         expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/mydevices'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
     describe 'when a meshblu error body is returned', ->
       beforeEach (done) ->
@@ -238,7 +238,7 @@ describe 'MeshbluHttp', ->
         expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/mydevices'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
     describe 'when a meshblu error body is returned', ->
       beforeEach (done) ->
@@ -279,18 +279,18 @@ describe 'MeshbluHttp', ->
         expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/messages'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
     describe 'when a meshblu error body is returned', ->
       beforeEach (done) ->
-        @request.post.yields null, null, error: 'something wrong'
+        @request.post.yields null, {statusCode: 500}, error: 'something wrong'
         @sut.message test: 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
         expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/messages'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
   describe '->register', ->
     beforeEach ->
@@ -374,7 +374,7 @@ describe 'MeshbluHttp', ->
         @sut.resetToken 'uuid', (@error) => done()
 
       it 'should call the callback with the error', ->
-        expect(@error).to.deep.equal new Error('unauthorized')
+        expect(@error.message).to.equal 'unauthorized'
 
     describe 'when request yields an error', ->
       beforeEach (done) ->
@@ -382,7 +382,7 @@ describe 'MeshbluHttp', ->
         @sut.resetToken 'the-other-uuid', (@error) => done()
 
       it 'should call the callback with the error', ->
-        expect(@error).to.deep.equal new Error('oh snap')
+        expect(@error.message).to.equal 'oh snap'
 
   describe '->revokeToken', ->
     beforeEach ->
@@ -410,7 +410,7 @@ describe 'MeshbluHttp', ->
         expect(@request.del).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/invalid-uuid/tokens/tekken'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
     describe 'when a meshblu error body is returned', ->
       beforeEach (done) ->
@@ -421,7 +421,7 @@ describe 'MeshbluHttp', ->
         expect(@request.del).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/invalid-uuid/tokens/tkoen'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
     describe 'when a meshblu error statusCode is returned', ->
       beforeEach (done) ->
@@ -617,18 +617,18 @@ describe 'MeshbluHttp', ->
         expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/whoami'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
     describe 'when a meshblu error body is returned', ->
       beforeEach (done) ->
-        @request.get.yields null, null, error: 'something wrong'
+        @request.get.yields null, {statusCode: 500}, error: 'something wrong'
         @sut.whoami (@error, @body) => done()
 
       it 'should call get', ->
         expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/whoami'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
   describe '->publicKey', ->
     beforeEach ->
@@ -657,18 +657,18 @@ describe 'MeshbluHttp', ->
         expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/my-uuid/publickey'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
     describe 'when a meshblu error body is returned', ->
       beforeEach (done) ->
-        @request.get.yields null, null, error: 'something wrong'
+        @request.get.yields null, {statusCode: 500}, error: 'something wrong'
         @sut.publicKey 'my-uuid', (@error, @body) => done()
 
       it 'should call get', ->
         expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/my-uuid/publickey'
 
       it 'should callback with an error', ->
-        expect(@error).to.deep.equal new Error
+        expect(@error).to.exist
 
   describe '->createSubscription', ->
     beforeEach ->

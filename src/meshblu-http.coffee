@@ -37,7 +37,7 @@ class MeshbluHttp
     requestOptions = @getDefaultRequestOptions()
 
     @request.post url, requestOptions, (error, response, body) =>
-      return callback new Error(body?.error ? 'Unknown Error Occurred') if response.statusCode != 204
+      return callback @_userError(response.statusCode, body?.error ? 'Unknown Error Occurred') if response.statusCode != 204
       callback()
 
   deleteSubscription: (options, callback) =>
@@ -45,7 +45,7 @@ class MeshbluHttp
     requestOptions = @getDefaultRequestOptions()
 
     @request.delete url, requestOptions, (error, response, body) =>
-      return callback new Error(body?.error ? 'Unknown Error Occurred') if response.statusCode != 204
+      return callback @_userError(response.statusCode, body?.error ? 'Unknown Error Occurred') if response.statusCode != 204
       callback()
 
   _subscriptionUrl: (options) =>
@@ -55,11 +55,11 @@ class MeshbluHttp
   device: (deviceUuid, callback=->) =>
     options = @getDefaultRequestOptions()
 
-    @request.get "#{@urlBase}/v2/devices/#{deviceUuid}", options, (error, response, body) ->
+    @request.get "#{@urlBase}/v2/devices/#{deviceUuid}", options, (error, response, body) =>
       debug "device", error, body
-      return callback error if error?
-      return callback new Error(body.error.message) if body?.error?
-      return callback new Error(body?.message || body) if response.statusCode != 200
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body.error.message) if body?.error?
+      return callback @_userError(response.statusCode, body?.message || body) if response.statusCode != 200
 
       callback null, body
 
@@ -67,10 +67,10 @@ class MeshbluHttp
     options = @getDefaultRequestOptions()
     options.qs = query
 
-    @request.get "#{@urlBase}/devices", options, (error, response, body) ->
+    @request.get "#{@urlBase}/devices", options, (error, response, body) =>
       debug "devices", error, body
-      return callback error if error?
-      return callback new Error(body?.error) if body?.error?
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body?.error) if body?.error?
 
       callback null, body
 
@@ -78,22 +78,22 @@ class MeshbluHttp
     options = @getDefaultRequestOptions()
     options.qs = query
 
-    @request.get "#{@urlBase}/mydevices", options, (error, response, body) ->
+    @request.get "#{@urlBase}/mydevices", options, (error, response, body) =>
       debug "mydevices", error, body
-      return callback error if error?
-      return callback new Error(body?.error) if body?.error?
-      return callback new Error(body) if response.statusCode >= 400
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body?.error) if body?.error?
+      return callback @_userError(response.statusCode, body) if response.statusCode >= 400
 
       callback null, body
 
   generateAndStoreToken: (deviceUuid, callback=->) =>
     options = @getDefaultRequestOptions()
 
-    @request.post "#{@urlBase}/devices/#{deviceUuid}/tokens", options, (error, response, body) ->
+    @request.post "#{@urlBase}/devices/#{deviceUuid}/tokens", options, (error, response, body) =>
       debug "generateAndStoreToken", error, body
-      return callback error if error?
-      return callback new Error(body.error.message) if body?.error?
-      return callback new Error(body) if response.statusCode >= 400
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body.error.message) if body?.error?
+      return callback @_userError(response.statusCode, body) if response.statusCode >= 400
 
       callback null, body
 
@@ -103,7 +103,7 @@ class MeshbluHttp
 
     privateKey: key.exportKey('private'), publicKey: key.exportKey('public')
 
-  message: (message, callback) =>
+  message: (message, callback=->) =>
     if @raw
       options = @getRawRequestOptions()
       options.body = message
@@ -113,23 +113,21 @@ class MeshbluHttp
 
     debug 'POST', "#{@urlBase}/messages", options
 
-    return @request.post "#{@urlBase}/messages", options unless callback?
-
-    @request.post "#{@urlBase}/messages", options, (error, response, body) ->
+    @request.post "#{@urlBase}/messages", options, (error, response, body) =>
       debug "message", error, body
-      return callback error if error?
-      return callback new Error(body?.error) if body?.error?
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body?.error) if body?.error?
 
       callback null, body
 
   publicKey: (deviceUuid, callback=->) =>
     options = @getDefaultRequestOptions()
 
-    @request.get "#{@urlBase}/devices/#{deviceUuid}/publickey", options, (error, response, body) ->
+    @request.get "#{@urlBase}/devices/#{deviceUuid}/publickey", options, (error, response, body) =>
       debug "publicKey", error, body
-      return callback error if error?
-      return callback new Error(body.error.message) if body?.error?
-      return callback new Error(body?.message || body) if response.statusCode != 200
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response?.statusCode, body.error.message) if body?.error?
+      return callback @_userError(response.statusCode, body?.message || body) if response.statusCode != 200
 
       callback null, body
 
@@ -137,30 +135,30 @@ class MeshbluHttp
     options = @getDefaultRequestOptions()
     options.json = device
 
-    @request.post "#{@urlBase}/devices", options, (error, response, body={}) ->
+    @request.post "#{@urlBase}/devices", options, (error, response, body={}) =>
       debug "register", error, body
-      return callback error if error?
-      return callback new Error(body.error.message) if body?.error?
-      return callback new Error(body?.message || body) if response.statusCode >= 400
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body.error.message) if body?.error?
+      return callback @_userError(response.statusCode, body?.message || body) if response.statusCode >= 400
       callback null, body
 
   resetToken: (deviceUuid, callback=->) =>
     options = @getDefaultRequestOptions()
     url = "#{@urlBase}/devices/#{deviceUuid}/token"
     @request.post url, options, (error, response, body) =>
-      return callback error if error?
-      return callback new Error(body?.error) unless response.statusCode == 201
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body?.error) unless response.statusCode == 201
 
       callback null, body
 
   revokeToken: (deviceUuid, deviceToken, callback=->) =>
     options = @getDefaultRequestOptions()
 
-    @request.del "#{@urlBase}/devices/#{deviceUuid}/tokens/#{deviceToken}", options, (error, response, body={}) ->
+    @request.del "#{@urlBase}/devices/#{deviceUuid}/tokens/#{deviceToken}", options, (error, response, body={}) =>
       debug "revokeToken", error, body
-      return callback error if error?
-      return callback new Error(body.error.message) if body?.error?
-      return callback new Error(body?.message || body) if response.statusCode >= 400
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body.error.message) if body?.error?
+      return callback @_userError(response.statusCode, body?.message || body) if response.statusCode >= 400
       callback null
 
   setPrivateKey: (privateKey) =>
@@ -172,31 +170,31 @@ class MeshbluHttp
   unregister: (device, callback=->) =>
     options = @getDefaultRequestOptions()
 
-    @request.del "#{@urlBase}/devices/#{device.uuid}", options, (error, response, body) ->
+    @request.del "#{@urlBase}/devices/#{device.uuid}", options, (error, response, body) =>
       debug "unregister", error, body
-      return callback error if error?
-      return callback new Error(body.error.message) if body?.error?
-      return callback new Error(body?.message || body) if response.statusCode >= 400
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body.error.message) if body?.error?
+      return callback @_userError(response.statusCode, body?.message || body) if response.statusCode >= 400
       callback null
 
   update: (uuid, params, callback=->) =>
     options = @getDefaultRequestOptions()
     options.json = params
 
-    @request.patch "#{@urlBase}/v2/devices/#{uuid}", options, (error, response, body) ->
+    @request.patch "#{@urlBase}/v2/devices/#{uuid}", options, (error, response, body) =>
       debug "update", error, body
-      return callback error if error?
-      return callback new Error(body?.error) unless response.statusCode == 204
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body?.error) unless response.statusCode == 204
       callback null, body
 
   updateDangerously: (uuid, params, callback=->) =>
     options = @getDefaultRequestOptions()
     options.json = params
 
-    @request.put "#{@urlBase}/v2/devices/#{uuid}", options, (error, response, body) ->
+    @request.put "#{@urlBase}/v2/devices/#{uuid}", options, (error, response, body) =>
       debug "update", error, body
-      return callback error if error?
-      return callback new Error(body?.error) unless response.statusCode == 204
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body?.error) unless response.statusCode == 204
       callback null, body
 
   verify: (message, signature) =>
@@ -205,12 +203,17 @@ class MeshbluHttp
   whoami: (callback=->) =>
     options = @getDefaultRequestOptions()
 
-    @request.get "#{@urlBase}/v2/whoami", options, (error, response, body) ->
+    @request.get "#{@urlBase}/v2/whoami", options, (error, response, body) =>
       debug "whoami", error, body
-      return callback error if error?
-      return callback new Error(body.error.message) if body?.error?
-      return callback new Error(body?.message || body) if response.statusCode != 200
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body.error.message) if body?.error?
+      return callback @_userError(response.statusCode, body?.message || body) if response.statusCode != 200
 
       callback null, body
+
+  _userError: (code, message) =>
+    error = new Error message
+    error.code = code
+    error
 
 module.exports = MeshbluHttp
