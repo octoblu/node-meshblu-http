@@ -97,6 +97,17 @@ class MeshbluHttp
 
       callback null, body
 
+  generateAndStoreTokenWithOptions: (deviceUuid, tokenOptions, callback=->) =>
+    options = @getDefaultRequestOptions()
+    options.json = tokenOptions if tokenOptions?
+    @request.post "#{@urlBase}/devices/#{deviceUuid}/tokens", options, (error, response, body) =>
+      debug "generateAndStoreToken", error, body
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body.error.message) if body?.error?
+      return callback @_userError(response.statusCode, body) if response.statusCode >= 400
+
+      callback null, body
+
   generateKeyPair: =>
     key = new @NodeRSA()
     key.generateKeyPair()
