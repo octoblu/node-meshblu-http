@@ -172,6 +172,17 @@ class MeshbluHttp
       return callback @_userError(response.statusCode, body?.message || body) if response.statusCode >= 400
       callback null
 
+  revokeTokenByQuery: (deviceUuid, query, callback=->) =>
+    options = @getDefaultRequestOptions()
+    options.qs = query
+
+    @request.del "#{@urlBase}/devices/#{deviceUuid}/tokens", options, (error, response, body={}) =>
+      debug "revokeToken", error, body
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body.error.message) if body?.error?
+      return callback @_userError(response.statusCode, body?.message || body) if response.statusCode >= 400
+      callback null
+
   setPrivateKey: (privateKey) =>
     @privateKey = new @NodeRSA privateKey
 
