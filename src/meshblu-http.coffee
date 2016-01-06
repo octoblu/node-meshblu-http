@@ -114,13 +114,22 @@ class MeshbluHttp
 
     privateKey: key.exportKey('private'), publicKey: key.exportKey('public')
 
-  message: (message, callback=->) =>
+  message: (message, rest...) =>
+    [callback] = rest
+    [metadata, callback] = rest if _.isPlainObject callback
+    metadata ?= {}
+
+    @_message message, metadata, callback
+
+  _message: (message, metadata, callback) =>
     if @raw
       options = @getRawRequestOptions()
       options.body = message
     else
       options = @getDefaultRequestOptions()
       options.json = message
+
+    options.headers = _.extend {}, @_getMetadataHeaders metadata, options.headers
 
     debug 'POST', "#{@urlBase}/messages", options
 
@@ -130,6 +139,9 @@ class MeshbluHttp
       return callback @_userError(response.statusCode, body?.error) if body?.error?
 
       callback null, body
+
+  _getMetadataHeaders: (metadata) =>
+    _.mapKeys metadata, (value, key) => "x-meshblu-#{key}"
 
   publicKey: (deviceUuid, callback=->) =>
     options = @getDefaultRequestOptions()

@@ -266,9 +266,34 @@ describe 'MeshbluHttp', ->
         expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/messages',
           json:
             devices: 'uuid'
+          headers: {}
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
+
+    describe 'when an error happens', ->
+      beforeEach (done) ->
+        @request.post.yields new Error
+        @sut.message test: 'invalid-uuid', (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/messages'
+
+      it 'should callback with an error', ->
+        expect(@error).to.exist
+
+    describe 'with a message with metadata', ->
+      beforeEach (done) ->
+        @request.post.yields null, null, foo: 'bar'
+        @sut.message {devices: 'uuid'}, {baconFat: true, lasers: false}, (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/messages',
+          json:
+            devices: 'uuid'
+          headers:
+            'x-meshblu-baconFat': true
+            'x-meshblu-lasers': false
 
     describe 'when an error happens', ->
       beforeEach (done) ->
