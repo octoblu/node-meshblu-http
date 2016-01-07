@@ -556,6 +556,18 @@ describe 'MeshbluHttp', ->
       it 'should call request.patch on the device', ->
         expect(@request.patch).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/howdy'
 
+    describe 'with a uuid, params, and metadata', ->
+      beforeEach (done) ->
+        @request.patch = sinon.stub().yields null, statusCode: 204, uuid: 'howdy'
+        @sut.update 'howdy', {sam: 'I am'}, {'wears-hats': 'sometimes'}, (@error) => done()
+
+      it 'should not have an error', ->
+        expect(@error).to.not.exist
+
+      it 'should call request.patch on the device', ->
+        expect(@request.patch).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/howdy'
+        expect(@request.patch.getCall(0).args[1].headers).to.deep.equal 'x-meshblu-wears-hats': 'sometimes'
+
     describe 'with an invalid device', ->
       beforeEach (done) ->
         @request.patch = sinon.stub().yields new Error('unable to update device'), null, null
