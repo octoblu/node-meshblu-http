@@ -295,6 +295,19 @@ describe 'MeshbluHttp', ->
             'x-meshblu-baconFat': true
             'x-meshblu-lasers': false
 
+    describe 'with a message with metadata', ->
+      beforeEach (done) ->
+        @request.post.yields null, null, foo: 'bar'
+        @sut.message {devices: 'uuid'}, {forwardedFor: ['some-real-device']}, (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/messages',
+          json:
+            devices: 'uuid'
+          headers:
+            'x-meshblu-forwardedFor': '["some-real-device"]'
+
+
     describe 'when an error happens', ->
       beforeEach (done) ->
         @request.post.yields new Error

@@ -141,7 +141,16 @@ class MeshbluHttp
       callback null, body
 
   _getMetadataHeaders: (metadata) =>
-    _.mapKeys metadata, (value, key) => "x-meshblu-#{key}"
+    _.transform metadata, (newMetadata, value, key) =>
+      newMetadata["x-meshblu-#{key}"] = @_possiblySerializeHeaderValue value
+      return true
+
+  #because request doesn't serialize arrays correctly for headers.
+  _possiblySerializeHeaderValue: (value) =>
+    return value if _.isString value
+    return value if _.isBoolean value
+    return value if _.isNumber value
+    return JSON.stringify value
 
   publicKey: (deviceUuid, callback=->) =>
     options = @getDefaultRequestOptions()
