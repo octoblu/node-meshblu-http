@@ -121,7 +121,7 @@ class MeshbluHttp
 
     @_message message, metadata, callback
 
-  _message: (message, metadata, callback) =>
+  _message: (message, metadata, callback=->) =>
     if @raw
       options = @getRawRequestOptions()
       options.body = message
