@@ -129,7 +129,7 @@ class MeshbluHttp
       options = @getDefaultRequestOptions()
       options.json = message
 
-    options.headers = _.extend {}, @_getMetadataHeaders metadata, options.headers
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
     debug 'POST', "#{@urlBase}/messages", options
 
@@ -211,9 +211,17 @@ class MeshbluHttp
       return callback @_userError(response.statusCode, body?.message || body) if response.statusCode >= 400
       callback null
 
-  update: (uuid, params, callback=->) =>
+  update: (uuid, params, rest...) =>
+    [callback] = rest
+    [metadata, callback] = rest if _.isPlainObject callback
+    metadata ?= {}
+
+    @_update uuid, params, metadata, callback
+
+  _update: (uuid, params, metadata, callback=->) =>
     options = @getDefaultRequestOptions()
     options.json = params
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
     @request.patch "#{@urlBase}/v2/devices/#{uuid}", options, (error, response, body) =>
       debug "update", error, body
