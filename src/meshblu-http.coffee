@@ -49,8 +49,8 @@ class MeshbluHttp
       callback()
 
   _subscriptionUrl: (options) =>
-    {subscriberId, emitterId, type} = options
-    "#{@urlBase}/v2/devices/#{subscriberId}/subscriptions/#{emitterId}/#{type}"
+    {subscriberUuid, emitterUuid, type} = options
+    "#{@urlBase}/v2/devices/#{subscriberUuid}/subscriptions/#{emitterUuid}/#{type}"
 
   device: (deviceUuid, callback=->) =>
     options = @getDefaultRequestOptions()
