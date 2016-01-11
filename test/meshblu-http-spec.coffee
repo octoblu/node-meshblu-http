@@ -730,8 +730,8 @@ describe 'MeshbluHttp', ->
       beforeEach (done) ->
         @request.post.yields null, {statusCode: 204}, null
         options =
-          subscriberId: 'my-uuid'
-          emitterId: 'device-uuid'
+          subscriberUuid: 'my-uuid'
+          emitterUuid: 'device-uuid'
           type: 'broadcast'
 
         @sut.createSubscription options, (@error, @body) => done()
@@ -744,8 +744,8 @@ describe 'MeshbluHttp', ->
       beforeEach (done) ->
         @request.post.yields null, {statusCode: 204}, {}
         options =
-          subscriberId: 'my-invalid-uuid'
-          emitterId: 'device-uuid'
+          subscriberUuid: 'my-invalid-uuid'
+          emitterUuid: 'device-uuid'
           type: 'received'
 
         @sut.createSubscription options, (@error, @body) => done()
@@ -758,8 +758,8 @@ describe 'MeshbluHttp', ->
       beforeEach (done) ->
         @request.post.yields null, {statusCode: 422}, {error: 'message'}
         options =
-          subscriberId: 'my-other-uuid'
-          emitterId: 'device-uuid'
+          subscriberUuid: 'my-other-uuid'
+          emitterUuid: 'device-uuid'
           type: 'nvm'
 
         @sut.createSubscription options, (@error, @body) => done()
@@ -777,8 +777,8 @@ describe 'MeshbluHttp', ->
       beforeEach (done) ->
         @request.delete.yields null, {statusCode: 204}, {}
         options =
-          subscriberId: 'my-uuid'
-          emitterId: 'device-uuid'
+          subscriberUuid: 'my-uuid'
+          emitterUuid: 'device-uuid'
           type: 'facebook'
 
         @sut.deleteSubscription options, (@error, @body) => done()
@@ -791,8 +791,8 @@ describe 'MeshbluHttp', ->
       beforeEach (done) ->
         @request.delete.yields null, {statusCode: 204}, {}
         options =
-          subscriberId: 'my-invalid-uuid'
-          emitterId: 'device-uuid'
+          subscriberUuid: 'my-invalid-uuid'
+          emitterUuid: 'device-uuid'
           type: 'twitter'
 
         @sut.deleteSubscription options, (@error, @body) => done()
@@ -808,8 +808,8 @@ describe 'MeshbluHttp', ->
       beforeEach (done) ->
         @request.delete.yields null, {statusCode: 422}, {error: 'message'}
         options =
-          subscriberId: 'my-other-uuid'
-          emitterId: 'device-uuid'
+          subscriberUuid: 'my-other-uuid'
+          emitterUuid: 'device-uuid'
           type: 'knull'
 
         @sut.deleteSubscription options, (@error, @body) => done()
@@ -821,8 +821,8 @@ describe 'MeshbluHttp', ->
       beforeEach (done) ->
         @request.delete.yields null, {statusCode: 472}, null
         options =
-          subscriberId: 'my-other-uuid'
-          emitterId: 'device-uuid'
+          subscriberUuid: 'my-other-uuid'
+          emitterUuid: 'device-uuid'
           type: 'knull'
 
         @sut.deleteSubscription options, (@error, @body) => done()
