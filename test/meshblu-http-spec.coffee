@@ -661,6 +661,14 @@ describe 'MeshbluHttp', ->
 
         expect(updateRequest).deep.equal expectedUpdateRequest
 
+    describe 'with a bad config type', ->
+      beforeEach (done) ->
+        @request.put = sinon.stub().yields null, statusCode: 204, uuid: 'howdy'
+        @sut.createHook 'howdy', 'dance', 'http://banksy.org/update', (@error)=> done()
+
+      it 'should not have an error', ->
+        expect(@error).to.exist
+
     describe 'when request returns an error in the body with a statusCode', ->
       beforeEach (done) ->
         @request.put = sinon.stub().yields null, {statusCode: 422}, error: 'body error'
