@@ -653,7 +653,7 @@ describe 'MeshbluHttp', ->
         updateRequest = @request.put.firstCall.args[1].json
         expectedUpdateRequest =
           $addToSet:
-            'forwarders.config':
+            'meshblu.forwarders.config':
               type: 'webhook'
               url: 'http://banksy.org/update',
               method: 'POST',

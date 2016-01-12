@@ -265,10 +265,10 @@ class MeshbluHttp
   createHook: (uuid, type, url, callback) =>
     allowedTypes = ['broadcast', 'sent', 'received', 'config']
     return callback new Error "Hook type not supported. supported types are: #{allowedTypes.join ', '}" unless type in allowedTypes
-    
+
     updateRequest =
       $addToSet:
-        "forwarders.#{type}":
+        "meshblu.forwarders.#{type}":
           type: 'webhook'
           url: url
           method: 'POST',
