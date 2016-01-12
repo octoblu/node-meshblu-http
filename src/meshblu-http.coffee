@@ -262,6 +262,17 @@ class MeshbluHttp
 
       callback null, body
 
+  createHook: (uuid, type, url, callback) =>
+    updateRequest =
+      $addToSet:
+        "forwarders.#{type}":
+          type: 'webhook'
+          url: url
+          method: 'POST',
+          generateAndForwardMeshbluCredentials: true
+
+    @updateDangerously(uuid, updateRequest, callback)
+
   _userError: (code, message) =>
     error = new Error message
     error.code = code

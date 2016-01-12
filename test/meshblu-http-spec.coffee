@@ -632,6 +632,44 @@ describe 'MeshbluHttp', ->
         expect(@error).to.be.an.instanceOf Error
         expect(@error.message).to.equal 'body error'
 
+  describe '->forward', ->
+    beforeEach ->
+      @request = put: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp {uuid: 'uuid', token: 'token'}, @dependencies
+
+    describe 'with a config type and url', ->
+      beforeEach (done) ->
+        @request.put = sinon.stub().yields null, statusCode: 204, uuid: 'howdy'
+        @sut.createHook 'howdy', 'config', 'http://banksy.org/update', (@error)=> done()
+
+      it 'should not have an error', ->
+        expect(@error).to.not.exist
+
+      it 'should call request.put on the device', ->
+        expect(@request.put).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/howdy'
+
+      it 'should call request.put on the device with the right update', ->
+        updateRequest = @request.put.firstCall.args[1].json
+        expectedUpdateRequest =
+          $addToSet:
+            'forwarders.config':
+              type: 'webhook'
+              url: 'http://banksy.org/update',
+              method: 'POST',
+              generateAndForwardMeshbluCredentials: true
+
+        expect(updateRequest).deep.equal expectedUpdateRequest
+
+    describe 'when request returns an error in the body with a statusCode', ->
+      beforeEach (done) ->
+        @request.put = sinon.stub().yields null, {statusCode: 422}, error: 'body error'
+        @sut.updateDangerously 'NOPE', {}, (@error) => done()
+
+      it 'should have an error', ->
+        expect(@error).to.be.an.instanceOf Error
+        expect(@error.message).to.equal 'body error'
+
   describe '->verify', ->
     beforeEach ->
       @sut = new MeshbluHttp {}
