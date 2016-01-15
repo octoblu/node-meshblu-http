@@ -121,6 +121,23 @@ describe 'MeshbluHttp', ->
         expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices',
           qs:
             type: 'octoblu:test'
+          headers: {}
+          json: true
+
+      it 'should call callback', ->
+        expect(@body).to.deep.equal foo: 'bar'
+
+    describe 'with a valid query and metadata', ->
+      beforeEach (done) ->
+        @request.get.yields null, null, foo: 'bar'
+        @sut.devices {type: 'octoblu:test'}, {as: 'aaron'}, (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices',
+          qs:
+            type: 'octoblu:test'
+          headers:
+            'x-meshblu-as': 'aaron'
           json: true
 
       it 'should call callback', ->

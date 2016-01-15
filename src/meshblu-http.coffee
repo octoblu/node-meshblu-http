@@ -63,9 +63,18 @@ class MeshbluHttp
 
       callback null, body
 
-  devices: (query={}, callback=->) =>
+  devices: (query={}, rest...) =>
+    [callback] = rest
+    [metadata, callback] = rest if _.isPlainObject callback
+    metadata ?= {}
+
+    @_devices query, metadata, callback
+
+  _devices: (query, metadata, callback=->) =>
     options = @getDefaultRequestOptions()
     options.qs = query
+
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
     @request.get "#{@urlBase}/devices", options, (error, response, body) =>
       debug "devices", error, body
