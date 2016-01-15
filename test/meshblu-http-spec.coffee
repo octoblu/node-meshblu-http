@@ -489,6 +489,52 @@ describe 'MeshbluHttp', ->
       it 'should callback with an error', ->
         expect(@error.message).to.deep.equal 'something wrong'
 
+  describe '->search', ->
+    beforeEach ->
+      @request = post: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp {}, @dependencies
+
+    describe 'with a valid search', ->
+      beforeEach (done) ->
+        @searchResults = [
+          {uuid: 'device-uuid1', type: 'octoblu:test'}
+          {uuid: 'device-uuid2', type: 'octoblu:test'}
+          {uuid: 'device-uuid3', type: 'octoblu:test'}
+        ]
+
+        @request.post.yields null, null, @searchResults
+        @sut.search {type: 'octoblu:test'}, {}, (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/search/devices',
+          json:
+            type: 'octoblu:test'
+          headers: {}
+
+      it 'should call callback', ->
+        expect(@body).to.deep.equal @searchResults
+
+    describe 'with a search with metadata', ->
+      beforeEach (done) ->
+        @searchResults = [
+          {uuid: 'device-uuid1', type: 'octoblu:test'}
+          {uuid: 'device-uuid2', type: 'octoblu:test'}
+          {uuid: 'device-uuid3', type: 'octoblu:test'}
+        ]
+
+        @request.post.yields null, null, @searchResults
+        @sut.search {type: 'octoblu:test'}, {baconFat: true, lasers: false}, (@error, @body) => done()
+
+
+      it 'should call get', ->
+        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/search/devices',
+          json:
+            type: 'octoblu:test'
+          headers:
+            'x-meshblu-baconFat': true
+            'x-meshblu-lasers': false
+
   describe '->setPrivateKey', ->
     beforeEach ->
       @nodeRSA = {}
