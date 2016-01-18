@@ -32,8 +32,8 @@ class MeshbluHttp
       user: @uuid
       pass: @token
 
-  createSubscription: (options, callback) =>
-    url = @_subscriptionUrl options
+  createSubscription: ({subscriberUuid, emitterUuid, type}, callback) =>
+    url = @_subscriptionUrl {subscriberUuid, emitterUuid, type}
     requestOptions = @getDefaultRequestOptions()
 
     @request.post url, requestOptions, (error, response, body) =>
