@@ -114,7 +114,7 @@ describe 'MeshbluHttp', ->
 
     describe 'with a valid query', ->
       beforeEach (done) ->
-        @request.get.yields null, null, foo: 'bar'
+        @request.get.yields null, {}, foo: 'bar'
         @sut.devices type: 'octoblu:test', (@error, @body) => done()
 
       it 'should call get', ->
@@ -129,7 +129,7 @@ describe 'MeshbluHttp', ->
 
     describe 'with a valid query and metadata', ->
       beforeEach (done) ->
-        @request.get.yields null, null, foo: 'bar'
+        @request.get.yields null, {}, foo: 'bar'
         @sut.devices {type: 'octoblu:test'}, {as: 'aaron'}, (@error, @body) => done()
 
       it 'should call get', ->
