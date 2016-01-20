@@ -118,7 +118,7 @@ describe 'MeshbluHttp', ->
         @sut.devices type: 'octoblu:test', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices',
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices',
           qs:
             type: 'octoblu:test'
           headers: {}
@@ -133,7 +133,7 @@ describe 'MeshbluHttp', ->
         @sut.devices {type: 'octoblu:test'}, {as: 'aaron'}, (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices',
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices',
           qs:
             type: 'octoblu:test'
           headers:
@@ -149,7 +149,7 @@ describe 'MeshbluHttp', ->
         @sut.devices 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices'
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -160,7 +160,7 @@ describe 'MeshbluHttp', ->
         @sut.devices 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices'
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices'
 
       it 'should callback with an error', ->
         expect(@error).to.exist

@@ -84,10 +84,11 @@ class MeshbluHttp
 
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
-    @request.get "#{@urlBase}/devices", options, (error, response, body) =>
+    @request.get "#{@urlBase}/v2/devices", options, (error, response, body) =>
       debug "devices", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body?.error) if body?.error?
+      return callback @_userError(response.statusCode, body) if response.statusCode >= 400
 
       callback null, body
 
