@@ -160,7 +160,7 @@ class MeshbluHttp
 
   _getMetadataHeaders: (metadata) =>
     _.transform metadata, (newMetadata, value, key) =>
-      newMetadata["x-meshblu-#{key}"] = @_possiblySerializeHeaderValue value
+      newMetadata["x-meshblu-#{_.kebabCase(key)}"] = @_possiblySerializeHeaderValue value
       return true
 
   #because request doesn't serialize arrays correctly for headers.

@@ -309,7 +309,7 @@ describe 'MeshbluHttp', ->
           json:
             devices: 'uuid'
           headers:
-            'x-meshblu-baconFat': true
+            'x-meshblu-bacon-fat': true
             'x-meshblu-lasers': false
 
     describe 'with a message with metadata', ->
@@ -322,7 +322,7 @@ describe 'MeshbluHttp', ->
           json:
             devices: 'uuid'
           headers:
-            'x-meshblu-forwardedFor': '["some-real-device"]'
+            'x-meshblu-forwarded-for': '["some-real-device"]'
 
 
     describe 'when an error happens', ->
@@ -532,7 +532,7 @@ describe 'MeshbluHttp', ->
           json:
             type: 'octoblu:test'
           headers:
-            'x-meshblu-baconFat': true
+            'x-meshblu-bacon-fat': true
             'x-meshblu-lasers': false
 
   describe '->setPrivateKey', ->
