@@ -56,7 +56,6 @@ describe 'MeshbluHttp', ->
       it 'should set urlBase', ->
         expect(@sut.urlBase).to.equal 'http://halo:400'
 
-
     describe 'without a protocol on a specific port', ->
       beforeEach ->
         @sut = new MeshbluHttp
@@ -825,6 +824,61 @@ describe 'MeshbluHttp', ->
 
       it 'should call get', ->
         expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/my-uuid/publickey'
+
+      it 'should callback with an error', ->
+        expect(@error).to.exist
+
+  describe '->subscriptions', ->
+    beforeEach ->
+      @request = get: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp {}, @dependencies
+
+    describe 'when called', ->
+      beforeEach (done) ->
+        @request.get.yields null, {}, [uuid: 'erik-is-so-popular', type: 'received']
+        @sut.subscriptions 'lets-go-to-rula', (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/lets-go-to-rula/subscriptions',
+          headers: {}
+          json: true
+
+      it 'should call callback', ->
+        expect(@body).to.deep.equal [uuid: 'erik-is-so-popular', type: 'received']
+
+    describe 'with metadata', ->
+      beforeEach (done) ->
+        @request.get.yields null, {}, [uuid: 'erik-is-so-popular', type: 'received']
+        @sut.subscriptions 'lets-go-to-rula', {as: 'aaron'}, (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/lets-go-to-rula/subscriptions',
+          headers:
+            'x-meshblu-as': 'aaron'
+          json: true
+
+      it 'should call callback', ->
+        expect(@body).to.deep.equal [uuid: 'erik-is-so-popular', type: 'received']
+
+    describe 'when an error happens', ->
+      beforeEach (done) ->
+        @request.get.yields new Error
+        @sut.subscriptions 'lets-go-to-rula', (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/lets-go-to-rula/subscriptions'
+
+      it 'should callback with an error', ->
+        expect(@error).to.exist
+
+    describe 'when a meshblu error body is returned', ->
+      beforeEach (done) ->
+        @request.get.yields null, {statusCode: 500}, error: 'something wrong'
+        @sut.subscriptions 'lets-go-to-rula', (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/lets-go-to-rula/subscriptions'
 
       it 'should callback with an error', ->
         expect(@error).to.exist

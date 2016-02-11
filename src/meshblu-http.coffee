@@ -92,6 +92,24 @@ class MeshbluHttp
 
       callback null, body
 
+  subscriptions: (uuid, rest...) =>
+    [callback] = rest
+    [metadata, callback] = rest if _.isPlainObject callback
+    metadata ?= {}
+    @_subscriptions uuid, metadata, callback
+
+  _subscriptions: (uuid, metadata, callback=->) =>
+    options = @getDefaultRequestOptions()
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
+
+    @request.get "#{@urlBase}/v2/devices/#{uuid}/subscriptions", options, (error, response, body) =>
+      debug "subscriptions", error, body
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body?.error) if body?.error?
+      return callback @_userError(response.statusCode, body) if response.statusCode >= 400
+
+      callback null, body
+
   mydevices: (query={}, callback=->) =>
     options = @getDefaultRequestOptions()
     options.qs = query
