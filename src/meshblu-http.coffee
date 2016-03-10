@@ -18,12 +18,12 @@ class MeshbluHttp
     @request = @dependencies.request ? require 'request'
     @NodeRSA = @dependencies.NodeRSA ? require 'node-rsa'
 
-  getDefaultRequestOptions: =>
-    _.extend json: true, @getAuthRequestOptions()
+  getDefaultRequestOptions: (uri) =>
+    options = _.extend json: true, uri: uri, @getAuthRequestOptions()
 
-  getRawRequestOptions: =>
+  getRawRequestOptions: (uri) =>
     headers = 'content-type' : 'application/json'
-    _.extend json: false, headers: headers, @getAuthRequestOptions()
+    _.extend json: false, headers: headers, uri: uri, @getAuthRequestOptions()
 
   getAuthRequestOptions: =>
     return auth: @auth if @auth?
@@ -34,17 +34,17 @@ class MeshbluHttp
 
   createSubscription: ({subscriberUuid, emitterUuid, type}, callback) =>
     url = @_subscriptionUrl {subscriberUuid, emitterUuid, type}
-    requestOptions = @getDefaultRequestOptions()
+    requestOptions = @getDefaultRequestOptions url
 
-    @request.post url, requestOptions, (error, response, body) =>
+    @request.post requestOptions, (error, response, body) =>
       return callback @_userError(response.statusCode, body?.error ? 'Unknown Error Occurred') if response.statusCode != 204
       callback()
 
   deleteSubscription: (options, callback) =>
     url = @_subscriptionUrl options
-    requestOptions = @getDefaultRequestOptions()
+    requestOptions = @getDefaultRequestOptions url
 
-    @request.delete url, requestOptions, (error, response, body) =>
+    @request.delete requestOptions, (error, response, body) =>
       return callback @_userError(response.statusCode, body?.error ? 'Unknown Error Occurred') if response.statusCode != 204
       callback()
 
@@ -53,9 +53,9 @@ class MeshbluHttp
     "#{@urlBase}/v2/devices/#{subscriberUuid}/subscriptions/#{emitterUuid}/#{type}"
 
   device: (deviceUuid, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/v2/devices/#{deviceUuid}"
 
-    @request.get "#{@urlBase}/v2/devices/#{deviceUuid}", options, (error, response, body) =>
+    @request.get options, (error, response, body) =>
       debug "device", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body.error.message) if body?.error?
@@ -64,10 +64,10 @@ class MeshbluHttp
       callback null, body
 
   search: (query, metadata, callback) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/search/devices"
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
     options.json = query
-    @request.post "#{@urlBase}/search/devices", options, (error, response, body) =>
+    @request.post options, (error, response, body) =>
       return callback @_userError(500, error.message) if error?
       return callback null, body
 
@@ -79,12 +79,12 @@ class MeshbluHttp
     @_devices query, metadata, callback
 
   _devices: (query, metadata, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/v2/devices"
     options.qs = query
 
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
-    @request.get "#{@urlBase}/v2/devices", options, (error, response, body) =>
+    @request.get options, (error, response, body) =>
       debug "devices", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body?.error) if body?.error?
@@ -99,10 +99,10 @@ class MeshbluHttp
     @_subscriptions uuid, metadata, callback
 
   _subscriptions: (uuid, metadata, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/v2/devices/#{uuid}/subscriptions"
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
-    @request.get "#{@urlBase}/v2/devices/#{uuid}/subscriptions", options, (error, response, body) =>
+    @request.get options, (error, response, body) =>
       debug "subscriptions", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body?.error) if body?.error?
@@ -111,10 +111,10 @@ class MeshbluHttp
       callback null, body
 
   mydevices: (query={}, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/mydevices"
     options.qs = query
 
-    @request.get "#{@urlBase}/mydevices", options, (error, response, body) =>
+    @request.get options, (error, response, body) =>
       debug "mydevices", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body?.error) if body?.error?
@@ -123,9 +123,9 @@ class MeshbluHttp
       callback null, body
 
   generateAndStoreToken: (deviceUuid, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/devices/#{deviceUuid}/tokens"
 
-    @request.post "#{@urlBase}/devices/#{deviceUuid}/tokens", options, (error, response, body) =>
+    @request.post options, (error, response, body) =>
       debug "generateAndStoreToken", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body.error.message) if body?.error?
@@ -134,9 +134,9 @@ class MeshbluHttp
       callback null, body
 
   generateAndStoreTokenWithOptions: (deviceUuid, tokenOptions, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/devices/#{deviceUuid}/tokens"
     options.json = tokenOptions if tokenOptions?
-    @request.post "#{@urlBase}/devices/#{deviceUuid}/tokens", options, (error, response, body) =>
+    @request.post options, (error, response, body) =>
       debug "generateAndStoreToken", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body.error.message) if body?.error?
@@ -159,17 +159,15 @@ class MeshbluHttp
 
   _message: (message, metadata, callback=->) =>
     if @raw
-      options = @getRawRequestOptions()
+      options = @getRawRequestOptions "#{@urlBase}/messages"
       options.body = message
     else
-      options = @getDefaultRequestOptions()
+      options = @getDefaultRequestOptions "#{@urlBase}/messages"
       options.json = message
 
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
-    debug 'POST', "#{@urlBase}/messages", options
-
-    @request.post "#{@urlBase}/messages", options, (error, response, body) =>
+    @request.post options, (error, response, body) =>
       debug "message", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body?.error) if body?.error?
@@ -189,9 +187,9 @@ class MeshbluHttp
     return JSON.stringify value
 
   publicKey: (deviceUuid, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/devices/#{deviceUuid}/publickey"
 
-    @request.get "#{@urlBase}/devices/#{deviceUuid}/publickey", options, (error, response, body) =>
+    @request.get options, (error, response, body) =>
       debug "publicKey", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response?.statusCode, body.error.message) if body?.error?
@@ -200,10 +198,10 @@ class MeshbluHttp
       callback null, body
 
   register: (device, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/devices"
     options.json = device
 
-    @request.post "#{@urlBase}/devices", options, (error, response, body={}) =>
+    @request.post options, (error, response, body={}) =>
       debug "register", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body.error.message) if body?.error?
@@ -211,18 +209,18 @@ class MeshbluHttp
       callback null, body
 
   resetToken: (deviceUuid, callback=->) =>
-    options = @getDefaultRequestOptions()
-    url = "#{@urlBase}/devices/#{deviceUuid}/token"
-    @request.post url, options, (error, response, body) =>
+    options = @getDefaultRequestOptions "#{@urlBase}/devices/#{deviceUuid}/token"
+
+    @request.post options, (error, response, body) =>
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body?.error) unless response.statusCode == 201
 
       callback null, body
 
   revokeToken: (deviceUuid, deviceToken, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/devices/#{deviceUuid}/tokens/#{deviceToken}"
 
-    @request.del "#{@urlBase}/devices/#{deviceUuid}/tokens/#{deviceToken}", options, (error, response, body={}) =>
+    @request.del options, (error, response, body={}) =>
       debug "revokeToken", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body.error.message) if body?.error?
@@ -230,10 +228,10 @@ class MeshbluHttp
       callback null
 
   revokeTokenByQuery: (deviceUuid, query, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/devices/#{deviceUuid}/tokens"
     options.qs = query
 
-    @request.del "#{@urlBase}/devices/#{deviceUuid}/tokens", options, (error, response, body={}) =>
+    @request.del options, (error, response, body={}) =>
       debug "revokeToken", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body.error.message) if body?.error?
@@ -247,9 +245,9 @@ class MeshbluHttp
     @privateKey.sign(stableStringify(data)).toString('base64')
 
   unregister: (device, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/devices/#{device.uuid}"
 
-    @request.del "#{@urlBase}/devices/#{device.uuid}", options, (error, response, body) =>
+    @request.del options, (error, response, body) =>
       debug "unregister", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body.error.message) if body?.error?
@@ -264,21 +262,21 @@ class MeshbluHttp
     @_update uuid, params, metadata, callback
 
   _update: (uuid, params, metadata, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/v2/devices/#{uuid}"
     options.json = params
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
-    @request.patch "#{@urlBase}/v2/devices/#{uuid}", options, (error, response, body) =>
+    @request.patch options, (error, response, body) =>
       debug "update", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body?.error) unless response.statusCode == 204
       callback null, body
 
   updateDangerously: (uuid, params, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/v2/devices/#{uuid}"
     options.json = params
 
-    @request.put "#{@urlBase}/v2/devices/#{uuid}", options, (error, response, body) =>
+    @request.put options, (error, response, body) =>
       debug "update", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body?.error) unless response.statusCode == 204
@@ -288,9 +286,9 @@ class MeshbluHttp
     @privateKey.verify stableStringify(message), signature, 'utf8', 'base64'
 
   whoami: (callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @getDefaultRequestOptions "#{@urlBase}/v2/whoami"
 
-    @request.get "#{@urlBase}/v2/whoami", options, (error, response, body) =>
+    @request.get options, (error, response, body) =>
       debug "whoami", error, body
       return callback @_userError(500, error.message) if error?
       return callback @_userError(response.statusCode, body.error.message) if body?.error?
