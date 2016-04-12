@@ -3,6 +3,18 @@ debug   = require('debug')('meshblu-http')
 stableStringify = require 'json-stable-stringify'
 
 class MeshbluHttp
+  @SUBSCRIPTION_TYPES = [
+    'broadcast'
+    'sent'
+    'received'
+    'config'
+    "broadcast.received"
+    "broadast.sent"
+    "configure.received"
+    "confiure.sent"
+    "message.received"
+    "message.sent"
+  ]
   constructor: (options={}, @dependencies={}) ->
     options = _.defaults(_.cloneDeep(options), port: 443, server: 'meshblu.octoblu.com')
     {@uuid, @token, @server, @port, @protocol, @auth, @raw} = options
@@ -299,8 +311,7 @@ class MeshbluHttp
       callback null, body
 
   createHook: (uuid, type, url, callback) =>
-    allowedTypes = ['broadcast', 'sent', 'received', 'config']
-    return callback new Error "Hook type not supported. supported types are: #{allowedTypes.join ', '}" unless type in allowedTypes
+    return callback new Error "Hook type not supported. supported types are: #{MeshbluHttp.SUBSCRIPTION_TYPES.join ', '}" unless type in MeshbluHttp.SUBSCRIPTION_TYPES
 
     updateRequest =
       $addToSet:
