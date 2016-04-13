@@ -373,7 +373,7 @@ describe 'MeshbluHttp', ->
 
     describe 'when request returns an error in the body', ->
       beforeEach (done) ->
-        @request.post = sinon.stub().yields null, {statusCode: 200}, error: new Error('body error')
+        @request.post = sinon.stub().yields null, {statusCode: 200}, error: 'body error'
         @sut.register {uuid: 'NOPE', token: 'NO'}, (@error) => done()
 
       it 'should have an error', ->
@@ -502,7 +502,7 @@ describe 'MeshbluHttp', ->
           {uuid: 'device-uuid3', type: 'octoblu:test'}
         ]
 
-        @request.post.yields null, null, @searchResults
+        @request.post.yields null, {}, @searchResults
         @sut.search {type: 'octoblu:test'}, {}, (@error, @body) => done()
 
       it 'should call get', ->
@@ -522,7 +522,7 @@ describe 'MeshbluHttp', ->
           {uuid: 'device-uuid3', type: 'octoblu:test'}
         ]
 
-        @request.post.yields null, null, @searchResults
+        @request.post.yields null, {}, @searchResults
         @sut.search {type: 'octoblu:test'}, {baconFat: true, lasers: false}, (@error, @body) => done()
 
 
@@ -600,7 +600,7 @@ describe 'MeshbluHttp', ->
 
     describe 'when request returns an error in the body', ->
       beforeEach (done) ->
-        @request.del = sinon.stub().yields null, {statusCode: 404}, error: new Error('body error')
+        @request.del = sinon.stub().yields null, {statusCode: 404}, error: 'body error'
         @sut.unregister {uuid: 'NOPE', token: 'NO'}, (@error) => done()
 
       it 'should have an error', ->
