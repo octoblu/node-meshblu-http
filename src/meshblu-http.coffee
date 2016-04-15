@@ -283,6 +283,7 @@ class MeshbluHttp
     _.transform metadata, (newMetadata, value, key) =>
       newMetadata["x-meshblu-#{_.kebabCase(key)}"] = @_possiblySerializeHeaderValue value
       return true
+    , {}
 
   #because request doesn't serialize arrays correctly for headers.
   _possiblySerializeHeaderValue: (value) =>
