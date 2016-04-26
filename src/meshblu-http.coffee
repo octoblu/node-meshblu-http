@@ -9,9 +9,9 @@ class MeshbluHttp
     'received'
     'config'
     "broadcast.received"
-    "broadast.sent"
+    "broadcast.sent"
     "configure.received"
-    "confiure.sent"
+    "configure.sent"
     "message.received"
     "message.sent"
   ]
