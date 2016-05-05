@@ -31,30 +31,41 @@ class MeshbluHttp
     @request = @dependencies.request ? require 'request'
     @NodeRSA = @dependencies.NodeRSA ? require 'node-rsa'
 
-  getDefaultRequestOptions: =>
-    _.extend json: true, @getAuthRequestOptions()
+  _getDefaultRequestOptions: =>
+    _.extend json: true, @_getAuthRequestOptions()
 
-  getRawRequestOptions: =>
+  _getRawRequestOptions: =>
     headers = 'content-type' : 'application/json'
-    _.extend json: false, headers: headers, @getAuthRequestOptions()
+    _.extend json: false, headers: headers, @_getAuthRequestOptions()
 
-  getAuthRequestOptions: =>
+  _getAuthRequestOptions: =>
     return auth: @auth if @auth?
     return {} unless @uuid && @token
     auth:
       user: @uuid
       pass: @token
 
+  authenticate: (callback) =>
+    options = @_getDefaultRequestOptions()
+
+    @request.post "#{@urlBase}/authenticate", options, (error, response, body) =>
+      debug "authenticate", error, body
+      return callback @_userError(500, error.message) if error?
+      return callback @_userError(response.statusCode, body?.error) if body?.error?
+      return callback @_userError(response.statusCode, body) if response.statusCode >= 400
+
+      callback null, body
+
   createSubscription: ({subscriberUuid, emitterUuid, type}, callback) =>
     url = @_subscriptionUrl {subscriberUuid, emitterUuid, type}
-    requestOptions = @getDefaultRequestOptions()
+    requestOptions = @_getDefaultRequestOptions()
 
     @request.post url, requestOptions, (error, response, body) =>
       @_handleResponse {error, response, body}, callback
 
   deleteSubscription: (options, callback) =>
     url = @_subscriptionUrl options
-    requestOptions = @getDefaultRequestOptions()
+    requestOptions = @_getDefaultRequestOptions()
 
     @request.delete url, requestOptions, (error, response, body) =>
       @_handleResponse {error, response, body}, callback
@@ -64,14 +75,14 @@ class MeshbluHttp
     "#{@urlBase}/v2/devices/#{subscriberUuid}/subscriptions/#{emitterUuid}/#{type}"
 
   device: (deviceUuid, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
 
     @request.get "#{@urlBase}/v2/devices/#{deviceUuid}", options, (error, response, body) =>
       debug "device", error, body
       @_handleResponse {error, response, body}, callback
 
   search: (query, metadata, callback) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
     options.json = query
     @request.post "#{@urlBase}/search/devices", options, (error, response, body) =>
@@ -85,7 +96,7 @@ class MeshbluHttp
     @_devices query, metadata, callback
 
   _devices: (query, metadata, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
     options.qs = query
 
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
@@ -101,7 +112,7 @@ class MeshbluHttp
     @_subscriptions uuid, metadata, callback
 
   _subscriptions: (uuid, metadata, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
     @request.get "#{@urlBase}/v2/devices/#{uuid}/subscriptions", options, (error, response, body) =>
@@ -109,7 +120,7 @@ class MeshbluHttp
       @_handleResponse {error, response, body}, callback
 
   mydevices: (query={}, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
     options.qs = query
 
     @request.get "#{@urlBase}/mydevices", options, (error, response, body) =>
@@ -117,14 +128,14 @@ class MeshbluHttp
       @_handleResponse {error, response, body}, callback
 
   generateAndStoreToken: (deviceUuid, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
 
     @request.post "#{@urlBase}/devices/#{deviceUuid}/tokens", options, (error, response, body) =>
       debug "generateAndStoreToken", error, body
       @_handleResponse {error, response, body}, callback
 
   generateAndStoreTokenWithOptions: (deviceUuid, tokenOptions, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
     options.json = tokenOptions if tokenOptions?
     @request.post "#{@urlBase}/devices/#{deviceUuid}/tokens", options, (error, response, body) =>
       debug "generateAndStoreToken", error, body
@@ -144,14 +155,14 @@ class MeshbluHttp
     @_message message, metadata, callback
 
   publicKey: (deviceUuid, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
 
     @request.get "#{@urlBase}/devices/#{deviceUuid}/publickey", options, (error, response, body) =>
       debug "publicKey", error, body
       @_handleResponse {error, response, body}, callback
 
   register: (device, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
     options.json = device
 
     @request.post "#{@urlBase}/devices", options, (error, response, body={}) =>
@@ -159,20 +170,20 @@ class MeshbluHttp
       @_handleResponse {error, response, body}, callback
 
   resetToken: (deviceUuid, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
     url = "#{@urlBase}/devices/#{deviceUuid}/token"
     @request.post url, options, (error, response, body) =>
       @_handleResponse {error, response, body}, callback
 
   revokeToken: (deviceUuid, deviceToken, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
 
     @request.del "#{@urlBase}/devices/#{deviceUuid}/tokens/#{deviceToken}", options, (error, response, body={}) =>
       debug "revokeToken", error, body
       @_handleResponse {error, response, body}, callback
 
   revokeTokenByQuery: (deviceUuid, query, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
     options.qs = query
 
     @request.del "#{@urlBase}/devices/#{deviceUuid}/tokens", options, (error, response, body={}) =>
@@ -186,7 +197,7 @@ class MeshbluHttp
     @privateKey.sign(stableStringify(data)).toString('base64')
 
   unregister: (device, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
 
     @request.del "#{@urlBase}/devices/#{device.uuid}", options, (error, response, body) =>
       debug "unregister", error, body
@@ -200,7 +211,7 @@ class MeshbluHttp
     @_update uuid, params, metadata, callback
 
   _update: (uuid, params, metadata, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
     options.json = params
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
@@ -209,7 +220,7 @@ class MeshbluHttp
       @_handleResponse {error, response, body}, callback
 
   updateDangerously: (uuid, params, callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
     options.json = params
 
     @request.put "#{@urlBase}/v2/devices/#{uuid}", options, (error, response, body) =>
@@ -220,7 +231,7 @@ class MeshbluHttp
     @privateKey.verify stableStringify(message), signature, 'utf8', 'base64'
 
   whoami: (callback=->) =>
-    options = @getDefaultRequestOptions()
+    options = @_getDefaultRequestOptions()
 
     @request.get "#{@urlBase}/v2/whoami", options, (error, response, body) =>
       debug "whoami", error, body
@@ -262,10 +273,10 @@ class MeshbluHttp
 
   _message: (message, metadata, callback=->) =>
     if @raw
-      options = @getRawRequestOptions()
+      options = @_getRawRequestOptions()
       options.body = message
     else
-      options = @getDefaultRequestOptions()
+      options = @_getDefaultRequestOptions()
       options.json = message
 
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers

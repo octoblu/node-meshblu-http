@@ -104,6 +104,45 @@ describe 'MeshbluHttp', ->
 
       it 'should callback with an error', ->
         expect(@error).to.exist
+  describe '->authenticate', ->
+    beforeEach ->
+      @request = post: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp {}, @dependencies
+
+    describe 'when valid', ->
+      beforeEach (done) ->
+        @request.post.yields null, {statusCode: 200}, foo: 'bar'
+        @sut.authenticate (error, @body) => done error
+
+      it 'should call post', ->
+        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/authenticate'
+
+      it 'should call callback', ->
+        expect(@body).to.deep.equal foo: 'bar'
+
+    describe 'when invalid', ->
+      beforeEach (done) ->
+        @request.post.yields null, {statusCode: 403}
+        @sut.authenticate (@error, @body) => done()
+
+      it 'should call post', ->
+        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/authenticate'
+
+      it 'should callback with an error', ->
+        expect(@error).to.exist
+
+    describe 'when an error happens', ->
+      beforeEach (done) ->
+        @request.post.yields new Error
+        @dependencies = request: @request
+        @sut.authenticate (@error, @body) => done()
+
+      it 'should call post', ->
+        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/authenticate'
+
+      it 'should callback with an error', ->
+        expect(@error).to.exist
 
   describe '->devices', ->
     beforeEach ->
