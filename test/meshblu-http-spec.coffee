@@ -161,6 +161,7 @@ describe 'MeshbluHttp', ->
             type: 'octoblu:test'
           headers: {}
           json: true
+          forever: true
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
@@ -177,6 +178,7 @@ describe 'MeshbluHttp', ->
           headers:
             'x-meshblu-as': 'aaron'
           json: true
+          forever: true
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
@@ -269,6 +271,7 @@ describe 'MeshbluHttp', ->
           qs:
             type: 'octoblu:test'
           json: true
+          forever: true
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
@@ -322,6 +325,7 @@ describe 'MeshbluHttp', ->
           json:
             devices: 'uuid'
           headers: {}
+          forever: true
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
@@ -349,6 +353,7 @@ describe 'MeshbluHttp', ->
           headers:
             'x-meshblu-bacon-fat': true
             'x-meshblu-lasers': false
+          forever: true
 
     describe 'with a message with metadata', ->
       beforeEach (done) ->
@@ -361,6 +366,7 @@ describe 'MeshbluHttp', ->
             devices: 'uuid'
           headers:
             'x-meshblu-forwarded-for': '["some-real-device"]'
+          forever: true
 
 
     describe 'when an error happens', ->
@@ -549,6 +555,7 @@ describe 'MeshbluHttp', ->
           json:
             type: 'octoblu:test'
           headers: {}
+          forever: true
 
       it 'should call callback', ->
         expect(@body).to.deep.equal @searchResults
@@ -572,6 +579,7 @@ describe 'MeshbluHttp', ->
           headers:
             'x-meshblu-bacon-fat': true
             'x-meshblu-lasers': false
+          forever: true
 
   describe '->setPrivateKey', ->
     beforeEach ->
@@ -882,6 +890,7 @@ describe 'MeshbluHttp', ->
         expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/lets-go-to-rula/subscriptions',
           headers: {}
           json: true
+          forever: true
 
       it 'should call callback', ->
         expect(@body).to.deep.equal [uuid: 'erik-is-so-popular', type: 'received']
@@ -896,6 +905,7 @@ describe 'MeshbluHttp', ->
           headers:
             'x-meshblu-as': 'aaron'
           json: true
+          forever: true
 
       it 'should call callback', ->
         expect(@body).to.deep.equal [uuid: 'erik-is-so-popular', type: 'received']

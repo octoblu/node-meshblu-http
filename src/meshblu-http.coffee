@@ -18,7 +18,17 @@ class MeshbluHttp
 
   constructor: (options={}, @dependencies={}) ->
     options = _.defaults(_.cloneDeep(options), port: 443, server: 'meshblu.octoblu.com')
-    {@uuid, @token, @server, @port, @protocol, @auth, @raw} = options
+    {
+      @uuid
+      @token
+      @server
+      @port
+      @protocol
+      @auth
+      @raw
+      @keepAlive
+    } = options
+    @keepAlive ?= true
     @protocol = null if @protocol == 'websocket'
     try
       @port = parseInt @port
@@ -32,7 +42,11 @@ class MeshbluHttp
     @NodeRSA = @dependencies.NodeRSA ? require 'node-rsa'
 
   _getDefaultRequestOptions: =>
-    _.extend json: true, @_getAuthRequestOptions()
+    defaults =
+      json: true
+      forever: @keepAlive
+
+    _.extend defaults, @_getAuthRequestOptions()
 
   _getRawRequestOptions: =>
     headers = 'content-type' : 'application/json'
