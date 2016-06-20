@@ -1,69 +1,49 @@
+{beforeEach, describe, it} = global
+{expect} = require 'chai'
+sinon = require 'sinon'
+
 MeshbluHttp = require '../src/meshblu-http'
 
 describe 'MeshbluHttp', ->
-  describe '->constructor', ->
-    describe 'default', ->
-      beforeEach ->
-        @sut = new MeshbluHttp
+  describe '->authenticate', ->
+    beforeEach ->
+      @request = post: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp {}, @dependencies
 
-      it 'should set urlBase', ->
-        expect(@sut.urlBase).to.equal 'https://meshblu.octoblu.com:443'
+    describe 'when valid', ->
+      beforeEach (done) ->
+        @request.post.yields null, {statusCode: 200}, foo: 'bar'
+        @sut.authenticate (error, @body) => done error
 
-    describe 'with options', ->
-      beforeEach ->
-        @sut = new MeshbluHttp
-          uuid: '1234'
-          token: 'tok3n'
-          server: 'google.co'
-          port: 555
-          protocol: 'ldap'
+      it 'should call post', ->
+        expect(@request.post).to.have.been.calledWith '/authenticate'
 
-      it 'should set urlBase', ->
-        expect(@sut.urlBase).to.equal 'ldap://google.co:555'
+      it 'should call callback', ->
+        expect(@body).to.deep.equal foo: 'bar'
 
-      it 'should set the protocol', ->
-        expect(@sut.protocol).to.equal 'ldap'
+    describe 'when invalid', ->
+      beforeEach (done) ->
+        @request.post.yields null, {statusCode: 403}
+        @sut.authenticate (@error, @body) => done()
 
-      it 'should set uuid', ->
-        expect(@sut.uuid).to.equal '1234'
+      it 'should call post', ->
+        expect(@request.post).to.have.been.calledWith '/authenticate'
 
-      it 'should set token', ->
-        expect(@sut.token).to.equal 'tok3n'
+      it 'should callback with an error', ->
+        expect(@error).to.exist
 
-      it 'should set server', ->
-        expect(@sut.server).to.equal 'google.co'
+    describe 'when an error happens', ->
+      beforeEach (done) ->
+        @request.post.yields new Error
+        @dependencies = request: @request
+        @sut.authenticate (@error, @body) => done()
 
-      it 'should set port', ->
-        expect(@sut.port).to.equal 555
+      it 'should call post', ->
+        expect(@request.post).to.have.been.calledWith '/authenticate'
 
-    describe 'with other options', ->
-      beforeEach ->
-        @sut = new MeshbluHttp
-          protocol: 'ftp'
-          server: 'halo'
-          port: 400
-
-      it 'should set urlBase', ->
-        expect(@sut.urlBase).to.equal 'ftp://halo:400'
-
-    describe 'with websocket protocol options', ->
-      beforeEach ->
-        @sut = new MeshbluHttp
-          protocol: 'websocket'
-          server: 'halo'
-          port: 400
-
-      it 'should set urlBase', ->
-        expect(@sut.urlBase).to.equal 'http://halo:400'
-
-    describe 'without a protocol on a specific port', ->
-      beforeEach ->
-        @sut = new MeshbluHttp
-          server: 'localhost'
-          port: 3000
-
-      it 'should set urlBase', ->
-        expect(@sut.urlBase).to.equal 'http://localhost:3000'
+      it 'should callback with an error', ->
+        expect(@error).to.exist
 
   describe '->device', ->
     beforeEach ->
@@ -77,7 +57,7 @@ describe 'MeshbluHttp', ->
         @sut.device 'the-uuuuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/the-uuuuid'
+        expect(@request.get).to.have.been.calledWith '/v2/devices/the-uuuuid'
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
@@ -89,7 +69,7 @@ describe 'MeshbluHttp', ->
         @sut.device 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/invalid-uuid'
+        expect(@request.get).to.have.been.calledWith '/v2/devices/invalid-uuid'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -100,46 +80,7 @@ describe 'MeshbluHttp', ->
         @sut.device 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/invalid-uuid'
-
-      it 'should callback with an error', ->
-        expect(@error).to.exist
-  describe '->authenticate', ->
-    beforeEach ->
-      @request = post: sinon.stub()
-      @dependencies = request: @request
-      @sut = new MeshbluHttp {}, @dependencies
-
-    describe 'when valid', ->
-      beforeEach (done) ->
-        @request.post.yields null, {statusCode: 200}, foo: 'bar'
-        @sut.authenticate (error, @body) => done error
-
-      it 'should call post', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/authenticate'
-
-      it 'should call callback', ->
-        expect(@body).to.deep.equal foo: 'bar'
-
-    describe 'when invalid', ->
-      beforeEach (done) ->
-        @request.post.yields null, {statusCode: 403}
-        @sut.authenticate (@error, @body) => done()
-
-      it 'should call post', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/authenticate'
-
-      it 'should callback with an error', ->
-        expect(@error).to.exist
-
-    describe 'when an error happens', ->
-      beforeEach (done) ->
-        @request.post.yields new Error
-        @dependencies = request: @request
-        @sut.authenticate (@error, @body) => done()
-
-      it 'should call post', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/authenticate'
+        expect(@request.get).to.have.been.calledWith '/v2/devices/invalid-uuid'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -156,7 +97,7 @@ describe 'MeshbluHttp', ->
         @sut.devices type: 'octoblu:test', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices',
+        expect(@request.get).to.have.been.calledWith '/v2/devices',
           qs:
             type: 'octoblu:test'
           headers: {}
@@ -172,7 +113,7 @@ describe 'MeshbluHttp', ->
         @sut.devices {type: 'octoblu:test'}, {as: 'aaron'}, (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices',
+        expect(@request.get).to.have.been.calledWith '/v2/devices',
           qs:
             type: 'octoblu:test'
           headers:
@@ -189,7 +130,7 @@ describe 'MeshbluHttp', ->
         @sut.devices 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices'
+        expect(@request.get).to.have.been.calledWith '/v2/devices'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -200,7 +141,7 @@ describe 'MeshbluHttp', ->
         @sut.devices 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices'
+        expect(@request.get).to.have.been.calledWith '/v2/devices'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -217,7 +158,7 @@ describe 'MeshbluHttp', ->
         @sut.generateAndStoreToken 'uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/uuid/tokens'
+        expect(@request.post).to.have.been.calledWith '/devices/uuid/tokens'
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
@@ -228,7 +169,7 @@ describe 'MeshbluHttp', ->
         @sut.generateAndStoreToken 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/invalid-uuid/tokens'
+        expect(@request.post).to.have.been.calledWith '/devices/invalid-uuid/tokens'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -239,7 +180,7 @@ describe 'MeshbluHttp', ->
         @sut.generateAndStoreToken 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/invalid-uuid/tokens'
+        expect(@request.post).to.have.been.calledWith '/devices/invalid-uuid/tokens'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -250,7 +191,7 @@ describe 'MeshbluHttp', ->
         @sut.generateAndStoreToken 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/invalid-uuid/tokens'
+        expect(@request.post).to.have.been.calledWith '/devices/invalid-uuid/tokens'
 
       it 'should callback with an error', ->
         expect(@error.message).to.deep.equal "Device not found"
@@ -267,7 +208,7 @@ describe 'MeshbluHttp', ->
         @sut.mydevices type: 'octoblu:test', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/mydevices',
+        expect(@request.get).to.have.been.calledWith '/mydevices',
           qs:
             type: 'octoblu:test'
           json: true
@@ -282,7 +223,7 @@ describe 'MeshbluHttp', ->
         @sut.mydevices 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/mydevices'
+        expect(@request.get).to.have.been.calledWith '/mydevices'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -293,7 +234,7 @@ describe 'MeshbluHttp', ->
         @sut.mydevices 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/mydevices'
+        expect(@request.get).to.have.been.calledWith '/mydevices'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -304,7 +245,7 @@ describe 'MeshbluHttp', ->
         @sut.mydevices 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/mydevices'
+        expect(@request.get).to.have.been.calledWith '/mydevices'
 
       it 'should callback with an error', ->
         expect(@error.message).to.deep.equal "Something went wrong"
@@ -321,7 +262,7 @@ describe 'MeshbluHttp', ->
         @sut.message devices: 'uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/messages',
+        expect(@request.post).to.have.been.calledWith '/messages',
           json:
             devices: 'uuid'
           headers: {}
@@ -336,7 +277,7 @@ describe 'MeshbluHttp', ->
         @sut.message test: 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/messages'
+        expect(@request.post).to.have.been.calledWith '/messages'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -347,7 +288,7 @@ describe 'MeshbluHttp', ->
         @sut.message {devices: 'uuid'}, {baconFat: true, lasers: false}, (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/messages',
+        expect(@request.post).to.have.been.calledWith '/messages',
           json:
             devices: 'uuid'
           headers:
@@ -361,7 +302,7 @@ describe 'MeshbluHttp', ->
         @sut.message {devices: 'uuid'}, {forwardedFor: ['some-real-device']}, (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/messages',
+        expect(@request.post).to.have.been.calledWith '/messages',
           json:
             devices: 'uuid'
           headers:
@@ -375,7 +316,7 @@ describe 'MeshbluHttp', ->
         @sut.message test: 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/messages'
+        expect(@request.post).to.have.been.calledWith '/messages'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -386,7 +327,7 @@ describe 'MeshbluHttp', ->
         @sut.message test: 'invalid-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/messages'
+        expect(@request.post).to.have.been.calledWith '/messages'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -406,7 +347,7 @@ describe 'MeshbluHttp', ->
         expect(@error).to.not.exist
 
       it 'should call request.post on the device', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices'
+        expect(@request.post).to.have.been.calledWith '/devices'
 
     describe 'with an invalid device', ->
       beforeEach (done) ->
@@ -442,14 +383,14 @@ describe 'MeshbluHttp', ->
         @sut.resetToken 'some-uuid'
 
       it 'should call post on request', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/some-uuid/token'
+        expect(@request.post).to.have.been.calledWith '/devices/some-uuid/token'
 
     describe 'when called with a different-uuid', ->
       beforeEach ->
         @sut.resetToken 'some-other-uuid'
 
       it 'should call post on request', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/some-other-uuid/token'
+        expect(@request.post).to.have.been.calledWith '/devices/some-other-uuid/token'
 
     describe 'when request yields a new token', ->
       beforeEach (done) ->
@@ -485,50 +426,50 @@ describe 'MeshbluHttp', ->
 
   describe '->revokeToken', ->
     beforeEach ->
-      @request = del: sinon.stub()
+      @request = delete: sinon.stub()
       @dependencies = request: @request
       @sut = new MeshbluHttp {}, @dependencies
 
     describe 'with a valid uuid', ->
       beforeEach (done) ->
-        @request.del.yields null, statusCode: 204, null
+        @request.delete.yields null, statusCode: 204, null
         @sut.revokeToken 'uuid', 'taken', (@error, @body) => done()
 
       it 'should call del', ->
-        expect(@request.del).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/uuid/tokens/taken'
+        expect(@request.delete).to.have.been.calledWith '/devices/uuid/tokens/taken'
 
       it 'should not have an error', ->
         expect(@error).to.not.exist
 
     describe 'when an error happens', ->
       beforeEach (done) ->
-        @request.del.yields new Error(), {}
+        @request.delete.yields new Error(), {}
         @sut.revokeToken 'invalid-uuid', 'tekken', (@error, @body) => done()
 
       it 'should call del', ->
-        expect(@request.del).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/invalid-uuid/tokens/tekken'
+        expect(@request.delete).to.have.been.calledWith '/devices/invalid-uuid/tokens/tekken'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
 
     describe 'when a meshblu error body is returned', ->
       beforeEach (done) ->
-        @request.del.yields null, statusCode: 204, {error: 'something wrong'}
+        @request.delete.yields null, statusCode: 204, {error: 'something wrong'}
         @sut.revokeToken 'invalid-uuid', 'tkoen', (@error, @body) => done()
 
       it 'should call del', ->
-        expect(@request.del).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/invalid-uuid/tokens/tkoen'
+        expect(@request.delete).to.have.been.calledWith '/devices/invalid-uuid/tokens/tkoen'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
 
     describe 'when a meshblu error statusCode is returned', ->
       beforeEach (done) ->
-        @request.del.yields null, {statusCode: 400}, 'something wrong'
+        @request.delete.yields null, {statusCode: 400}, 'something wrong'
         @sut.revokeToken 'invalid-uuid', 'tkoen', (@error, @body) => done()
 
       it 'should call del', ->
-        expect(@request.del).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/invalid-uuid/tokens/tkoen'
+        expect(@request.delete).to.have.been.calledWith '/devices/invalid-uuid/tokens/tkoen'
 
       it 'should callback with an error', ->
         expect(@error.message).to.deep.equal 'something wrong'
@@ -551,7 +492,7 @@ describe 'MeshbluHttp', ->
         @sut.search {type: 'octoblu:test'}, {}, (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/search/devices',
+        expect(@request.post).to.have.been.calledWith '/search/devices',
           json:
             type: 'octoblu:test'
           headers: {}
@@ -573,7 +514,7 @@ describe 'MeshbluHttp', ->
 
 
       it 'should call get', ->
-        expect(@request.post).to.have.been.calledWith 'https://meshblu.octoblu.com:443/search/devices',
+        expect(@request.post).to.have.been.calledWith '/search/devices',
           json:
             type: 'octoblu:test'
           headers:
@@ -622,24 +563,24 @@ describe 'MeshbluHttp', ->
 
   describe '->unregister', ->
     beforeEach ->
-      @request = del: sinon.stub()
+      @request = delete: sinon.stub()
       @dependencies = request: @request
       @sut = new MeshbluHttp {}, @dependencies
 
     describe 'with a device', ->
       beforeEach (done) ->
-        @request.del = sinon.stub().yields null, {statusCode: 200}, null
+        @request.delete = sinon.stub().yields null, {statusCode: 200}, null
         @sut.unregister {uuid: 'howdy', token: 'sweet'}, (@error) => done()
 
       it 'should not have an error', ->
         expect(@error).to.not.exist
 
-      it 'should call request.del on the device', ->
-        expect(@request.del).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/howdy'
+      it 'should call request.delete on the device', ->
+        expect(@request.delete).to.have.been.calledWith '/devices/howdy'
 
     describe 'with an invalid device', ->
       beforeEach (done) ->
-        @request.del = sinon.stub().yields new Error('unable to delete device'), {statusCode: 404}, "Device not found"
+        @request.delete = sinon.stub().yields new Error('unable to delete device'), {statusCode: 404}, "Device not found"
         @sut.unregister {uuid: 'NOPE', token: 'NO'}, (@error) => done()
 
       it 'should have an error', ->
@@ -647,7 +588,7 @@ describe 'MeshbluHttp', ->
 
     describe 'when request returns an error in the body', ->
       beforeEach (done) ->
-        @request.del = sinon.stub().yields null, {statusCode: 404}, error: 'body error'
+        @request.delete = sinon.stub().yields null, {statusCode: 404}, error: 'body error'
         @sut.unregister {uuid: 'NOPE', token: 'NO'}, (@error) => done()
 
       it 'should have an error', ->
@@ -655,7 +596,7 @@ describe 'MeshbluHttp', ->
 
     describe 'when request returns an error in the body', ->
       beforeEach (done) ->
-        @request.del = sinon.stub().yields null, {statusCode: 404}, "Device not found"
+        @request.delete = sinon.stub().yields null, {statusCode: 404}, "Device not found"
         @sut.unregister {uuid: 'NOPE', token: 'NO'}, (@error) => done()
 
       it 'should have an error', ->
@@ -676,7 +617,7 @@ describe 'MeshbluHttp', ->
         expect(@error).to.not.exist
 
       it 'should call request.patch on the device', ->
-        expect(@request.patch).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/howdy'
+        expect(@request.patch).to.have.been.calledWith '/v2/devices/howdy'
 
     describe 'with a uuid, params, and metadata', ->
       beforeEach (done) ->
@@ -687,7 +628,7 @@ describe 'MeshbluHttp', ->
         expect(@error).to.not.exist
 
       it 'should call request.patch on the device', ->
-        expect(@request.patch).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/howdy'
+        expect(@request.patch).to.have.been.calledWith '/v2/devices/howdy'
         expect(@request.patch.getCall(0).args[1].headers).to.deep.equal 'x-meshblu-wears-hats': 'sometimes'
 
     describe 'with an invalid device', ->
@@ -722,7 +663,7 @@ describe 'MeshbluHttp', ->
         expect(@error).to.not.exist
 
       it 'should call request.put on the device', ->
-        expect(@request.put).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/howdy'
+        expect(@request.put).to.have.been.calledWith '/v2/devices/howdy'
 
     describe 'with an invalid device', ->
       beforeEach (done) ->
@@ -756,7 +697,7 @@ describe 'MeshbluHttp', ->
         expect(@error).to.not.exist
 
       it 'should call request.put on the device', ->
-        expect(@request.put).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/howdy'
+        expect(@request.put).to.have.been.calledWith '/v2/devices/howdy'
 
       it 'should call request.put on the device with the right update', ->
         updateRequest = @request.put.firstCall.args[1].json
@@ -807,7 +748,7 @@ describe 'MeshbluHttp', ->
         @sut.whoami (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/whoami'
+        expect(@request.get).to.have.been.calledWith '/v2/whoami'
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
@@ -819,7 +760,7 @@ describe 'MeshbluHttp', ->
         @sut.whoami (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/whoami'
+        expect(@request.get).to.have.been.calledWith '/v2/whoami'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -830,7 +771,7 @@ describe 'MeshbluHttp', ->
         @sut.whoami (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/whoami'
+        expect(@request.get).to.have.been.calledWith '/v2/whoami'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -847,7 +788,7 @@ describe 'MeshbluHttp', ->
         @sut.publicKey 'my-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/my-uuid/publickey'
+        expect(@request.get).to.have.been.calledWith '/devices/my-uuid/publickey'
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
@@ -859,7 +800,7 @@ describe 'MeshbluHttp', ->
         @sut.publicKey 'my-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/my-uuid/publickey'
+        expect(@request.get).to.have.been.calledWith '/devices/my-uuid/publickey'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -870,7 +811,7 @@ describe 'MeshbluHttp', ->
         @sut.publicKey 'my-uuid', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/devices/my-uuid/publickey'
+        expect(@request.get).to.have.been.calledWith '/devices/my-uuid/publickey'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -887,7 +828,7 @@ describe 'MeshbluHttp', ->
         @sut.subscriptions 'lets-go-to-rula', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/lets-go-to-rula/subscriptions',
+        expect(@request.get).to.have.been.calledWith '/v2/devices/lets-go-to-rula/subscriptions',
           headers: {}
           json: true
           forever: true
@@ -901,7 +842,7 @@ describe 'MeshbluHttp', ->
         @sut.subscriptions 'lets-go-to-rula', {as: 'aaron'}, (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/lets-go-to-rula/subscriptions',
+        expect(@request.get).to.have.been.calledWith '/v2/devices/lets-go-to-rula/subscriptions',
           headers:
             'x-meshblu-as': 'aaron'
           json: true
@@ -916,7 +857,7 @@ describe 'MeshbluHttp', ->
         @sut.subscriptions 'lets-go-to-rula', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/lets-go-to-rula/subscriptions'
+        expect(@request.get).to.have.been.calledWith '/v2/devices/lets-go-to-rula/subscriptions'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -927,7 +868,7 @@ describe 'MeshbluHttp', ->
         @sut.subscriptions 'lets-go-to-rula', (@error, @body) => done()
 
       it 'should call get', ->
-        expect(@request.get).to.have.been.calledWith 'https://meshblu.octoblu.com:443/v2/devices/lets-go-to-rula/subscriptions'
+        expect(@request.get).to.have.been.calledWith '/v2/devices/lets-go-to-rula/subscriptions'
 
       it 'should callback with an error', ->
         expect(@error).to.exist
@@ -949,7 +890,7 @@ describe 'MeshbluHttp', ->
         @sut.createSubscription options, (@error, @body) => done()
 
       it 'should call post', ->
-        url = 'https://meshblu.octoblu.com:443/v2/devices/my-uuid/subscriptions/device-uuid/broadcast'
+        url = '/v2/devices/my-uuid/subscriptions/device-uuid/broadcast'
         expect(@request.post).to.have.been.calledWith url
 
     describe 'when given an invalid uuid', ->
@@ -963,7 +904,7 @@ describe 'MeshbluHttp', ->
         @sut.createSubscription options, (@error, @body) => done()
 
       it 'should call post', ->
-        url = 'https://meshblu.octoblu.com:443/v2/devices/my-invalid-uuid/subscriptions/device-uuid/received'
+        url = '/v2/devices/my-invalid-uuid/subscriptions/device-uuid/received'
         expect(@request.post).to.have.been.calledWith url
 
     describe 'when given an valid uuid that meshblu thinks is invalid', ->
@@ -996,7 +937,7 @@ describe 'MeshbluHttp', ->
         @sut.deleteSubscription options, (@error, @body) => done()
 
       it 'should call post', ->
-        url = 'https://meshblu.octoblu.com:443/v2/devices/my-uuid/subscriptions/device-uuid/facebook'
+        url = '/v2/devices/my-uuid/subscriptions/device-uuid/facebook'
         expect(@request.delete).to.have.been.calledWith url
 
     describe 'when given an invalid uuid', ->
@@ -1010,7 +951,7 @@ describe 'MeshbluHttp', ->
         @sut.deleteSubscription options, (@error, @body) => done()
 
       it 'should call post', ->
-        url = 'https://meshblu.octoblu.com:443/v2/devices/my-invalid-uuid/subscriptions/device-uuid/twitter'
+        url = '/v2/devices/my-invalid-uuid/subscriptions/device-uuid/twitter'
         expect(@request.delete).to.have.been.calledWith url
 
       it 'should not yield an error', ->
