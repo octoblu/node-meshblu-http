@@ -2,7 +2,6 @@ dns       = require 'dns'
 _         = require 'lodash'
 request   = require 'request'
 url       = require 'url'
-Benchmark = require 'simple-benchmark'
 debug     = require('debug')('meshblu-http:meshblu-request')
 
 class MeshbluRequest
@@ -55,15 +54,16 @@ class MeshbluRequest
     return _.join subdomainParts, '.'
 
   _resolveBaseUrl: (callback) =>
+    debug '_resolveBaseUrl'
     return callback null, url.format {@protocol, @hostname, @port} unless @resolveSrv
 
-    benchmark = new Benchmark label: 'resolveSrv'
-
-    dns.resolveSrv @_getSrvAddress(), (error, addresses) =>
-      debug benchmark.toString()
+    srvAddress = @_getSrvAddress()
+    debug 'resolve srv from:', srvAddress
+    dns.resolveSrv srvAddress, (error, addresses) =>
       return callback error if error?
       address = _.minBy addresses, 'priority'
       return callback new Error('SRV record found, but contained no valid addresses') unless address?
+      debug 'resolved srv to: ', JSON.stringify(address)
       return callback null, url.format {protocol: @protocol, hostname: address.name, port: address.port}
 
 module.exports = MeshbluRequest
