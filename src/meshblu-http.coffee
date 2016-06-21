@@ -2,7 +2,7 @@ _     = require 'lodash'
 url   = require 'url'
 debug = require('debug')('meshblu-http')
 stableStringify = require 'json-stable-stringify'
-MeshbluRequest = require './meshblu-request.coffee'
+MeshbluRequest  = require './meshblu-request.coffee'
 
 class MeshbluHttp
   @SUBSCRIPTION_TYPES = [
@@ -27,12 +27,12 @@ class MeshbluHttp
       port
       protocol
       resolveSrv
-      @auth
+      auth
       @raw
       @keepAlive
     } = options
     @keepAlive ?= true
-    auth = {username: uuid, password: token} if uuid? || token?
+    auth ?= {username: uuid, password: token} if uuid? || token?
 
     @protocol ?= 'https'
     throw new Error('protocol must be one of http/https/<null>') unless _.includes ['http', 'https'], @protocol
@@ -228,19 +228,11 @@ class MeshbluHttp
       debug "devices", error, body
       @_handleResponse {error, response, body}, callback
 
-  _getAuthRequestOptions: =>
-    return auth: @auth if @auth?
-    return {} unless @uuid && @token
-    auth:
-      user: @uuid
-      pass: @token
-
   _getDefaultRequestOptions: =>
-    defaults =
+    return {
       json: true
       forever: @keepAlive
-
-    _.extend defaults, @_getAuthRequestOptions()
+    }
 
   _getMetadataHeaders: (metadata) =>
     _.transform metadata, (newMetadata, value, key) =>
@@ -250,8 +242,11 @@ class MeshbluHttp
     , {}
 
   _getRawRequestOptions: =>
-    headers = 'content-type' : 'application/json'
-    _.extend json: false, headers: headers, @_getAuthRequestOptions()
+    return {
+      json: false,
+      headers:
+        'content-type': 'application/json'
+    }
 
   _handleError: ({message, code}, callback) =>
     message ?= 'Unknown Error Occurred'
