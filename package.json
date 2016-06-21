@@ -36,6 +36,7 @@
     "json-stable-stringify": "^1.0.0",
     "lodash": "^4.13.1",
     "node-rsa": "^0.2.23",
-    "request": "^2.55.0"
+    "request": "^2.72.0",
+    "simple-benchmark": "^1.0.11"
   }
 }

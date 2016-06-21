@@ -32,7 +32,7 @@ class MeshbluHttp
       @keepAlive
     } = options
     @keepAlive ?= true
-    auth = {username: uuid, password: token}
+    auth = {username: uuid, password: token} if uuid? || token?
 
     @protocol ?= 'https'
     throw new Error('protocol must be one of http/https/<null>') unless _.includes ['http', 'https'], @protocol
@@ -42,24 +42,6 @@ class MeshbluHttp
     {@request, @NodeRSA} = @dependencies
     @request ?= new MeshbluRequest {protocol, hostname, port, resolveSrv, request: {auth}}
     @NodeRSA ?= require 'node-rsa'
-
-  _getDefaultRequestOptions: =>
-    defaults =
-      json: true
-      forever: @keepAlive
-
-    _.extend defaults, @_getAuthRequestOptions()
-
-  _getRawRequestOptions: =>
-    headers = 'content-type' : 'application/json'
-    _.extend json: false, headers: headers, @_getAuthRequestOptions()
-
-  _getAuthRequestOptions: =>
-    return auth: @auth if @auth?
-    return {} unless @uuid && @token
-    auth:
-      user: @uuid
-      pass: @token
 
   authenticate: (callback) =>
     options = @_getDefaultRequestOptions()
@@ -71,6 +53,20 @@ class MeshbluHttp
       return callback @_userError(response.statusCode, body) if response.statusCode >= 400
 
       callback null, body
+
+  createHook: (uuid, type, url, callback) =>
+    error = new Error "Hook type not supported. supported types are: #{MeshbluHttp.SUBSCRIPTION_TYPES.join ', '}"
+    return callback error unless type in MeshbluHttp.SUBSCRIPTION_TYPES
+
+    updateRequest =
+      $addToSet:
+        "meshblu.forwarders.#{type}":
+          type: 'webhook'
+          url: url
+          method: 'POST',
+          generateAndForwardMeshbluCredentials: true
+
+    @updateDangerously(uuid, updateRequest, callback)
 
   createSubscription: ({subscriberUuid, emitterUuid, type}, callback) =>
     url = @_subscriptionUrl {subscriberUuid, emitterUuid, type}
@@ -86,22 +82,11 @@ class MeshbluHttp
     @request.delete url, requestOptions, (error, response, body) =>
       @_handleResponse {error, response, body}, callback
 
-  _subscriptionUrl: (options) =>
-    {subscriberUuid, emitterUuid, type} = options
-    "/v2/devices/#{subscriberUuid}/subscriptions/#{emitterUuid}/#{type}"
-
   device: (deviceUuid, callback=->) =>
     options = @_getDefaultRequestOptions()
 
     @request.get "/v2/devices/#{deviceUuid}", options, (error, response, body) =>
       debug "device", error, body
-      @_handleResponse {error, response, body}, callback
-
-  search: (query, metadata, callback) =>
-    options = @_getDefaultRequestOptions()
-    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
-    options.json = query
-    @request.post "/search/devices", options, (error, response, body) =>
       @_handleResponse {error, response, body}, callback
 
   devices: (query={}, rest...) =>
@@ -110,38 +95,6 @@ class MeshbluHttp
     metadata ?= {}
 
     @_devices query, metadata, callback
-
-  _devices: (query, metadata, callback=->) =>
-    options = @_getDefaultRequestOptions()
-    options.qs = query
-
-    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
-
-    @request.get "/v2/devices", options, (error, response, body) =>
-      debug "devices", error, body
-      @_handleResponse {error, response, body}, callback
-
-  subscriptions: (uuid, rest...) =>
-    [callback] = rest
-    [metadata, callback] = rest if _.isPlainObject callback
-    metadata ?= {}
-    @_subscriptions uuid, metadata, callback
-
-  _subscriptions: (uuid, metadata, callback=->) =>
-    options = @_getDefaultRequestOptions()
-    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
-
-    @request.get "/v2/devices/#{uuid}/subscriptions", options, (error, response, body) =>
-      debug "subscriptions", error, body
-      @_handleResponse {error, response, body}, callback
-
-  mydevices: (query={}, callback=->) =>
-    options = @_getDefaultRequestOptions()
-    options.qs = query
-
-    @request.get "/mydevices", options, (error, response, body) =>
-      debug "mydevices", error, body
-      @_handleResponse {error, response, body}, callback
 
   generateAndStoreToken: (deviceUuid, callback=->) =>
     options = @_getDefaultRequestOptions()
@@ -169,6 +122,14 @@ class MeshbluHttp
     metadata ?= {}
 
     @_message message, metadata, callback
+
+  mydevices: (query={}, callback=->) =>
+    options = @_getDefaultRequestOptions()
+    options.qs = query
+
+    @request.get "/mydevices", options, (error, response, body) =>
+      debug "mydevices", error, body
+      @_handleResponse {error, response, body}, callback
 
   publicKey: (deviceUuid, callback=->) =>
     options = @_getDefaultRequestOptions()
@@ -206,11 +167,24 @@ class MeshbluHttp
       debug "revokeToken", error, body
       @_handleResponse {error, response, body}, callback
 
+  search: (query, metadata, callback) =>
+    options = @_getDefaultRequestOptions()
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
+    options.json = query
+    @request.post "/search/devices", options, (error, response, body) =>
+      @_handleResponse {error, response, body}, callback
+
   setPrivateKey: (privateKey) =>
     @privateKey = new @NodeRSA privateKey
 
   sign: (data) =>
     @privateKey.sign(stableStringify(data)).toString('base64')
+
+  subscriptions: (uuid, rest...) =>
+    [callback] = rest
+    [metadata, callback] = rest if _.isPlainObject callback
+    metadata ?= {}
+    @_subscriptions uuid, metadata, callback
 
   unregister: (device, callback=->) =>
     options = @_getDefaultRequestOptions()
@@ -225,15 +199,6 @@ class MeshbluHttp
     metadata ?= {}
 
     @_update uuid, params, metadata, callback
-
-  _update: (uuid, params, metadata, callback=->) =>
-    options = @_getDefaultRequestOptions()
-    options.json = params
-    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
-
-    @request.patch "/v2/devices/#{uuid}", options, (error, response, body) =>
-      debug "update", error, body
-      @_handleResponse {error, response, body}, callback
 
   updateDangerously: (uuid, params, callback=->) =>
     options = @_getDefaultRequestOptions()
@@ -253,19 +218,40 @@ class MeshbluHttp
       debug "whoami", error, body
       @_handleResponse {error, response, body}, callback
 
-  createHook: (uuid, type, url, callback) =>
-    error = new Error "Hook type not supported. supported types are: #{MeshbluHttp.SUBSCRIPTION_TYPES.join ', '}"
-    return callback error unless type in MeshbluHttp.SUBSCRIPTION_TYPES
+  _devices: (query, metadata, callback=->) =>
+    options = @_getDefaultRequestOptions()
+    options.qs = query
 
-    updateRequest =
-      $addToSet:
-        "meshblu.forwarders.#{type}":
-          type: 'webhook'
-          url: url
-          method: 'POST',
-          generateAndForwardMeshbluCredentials: true
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
-    @updateDangerously(uuid, updateRequest, callback)
+    @request.get "/v2/devices", options, (error, response, body) =>
+      debug "devices", error, body
+      @_handleResponse {error, response, body}, callback
+
+  _getAuthRequestOptions: =>
+    return auth: @auth if @auth?
+    return {} unless @uuid && @token
+    auth:
+      user: @uuid
+      pass: @token
+
+  _getDefaultRequestOptions: =>
+    defaults =
+      json: true
+      forever: @keepAlive
+
+    _.extend defaults, @_getAuthRequestOptions()
+
+  _getMetadataHeaders: (metadata) =>
+    _.transform metadata, (newMetadata, value, key) =>
+      kebabKey = _.kebabCase key
+      newMetadata["x-meshblu-#{kebabKey}"] = @_possiblySerializeHeaderValue value
+      return true
+    , {}
+
+  _getRawRequestOptions: =>
+    headers = 'content-type' : 'application/json'
+    _.extend json: false, headers: headers, @_getAuthRequestOptions()
 
   _handleError: ({message, code}, callback) =>
     message ?= 'Unknown Error Occurred'
@@ -287,6 +273,7 @@ class MeshbluHttp
 
     callback null, body
 
+
   _message: (message, metadata, callback=->) =>
     if @raw
       options = @_getRawRequestOptions()
@@ -306,18 +293,33 @@ class MeshbluHttp
 
       callback null, body
 
-  _getMetadataHeaders: (metadata) =>
-    _.transform metadata, (newMetadata, value, key) =>
-      newMetadata["x-meshblu-#{_.kebabCase(key)}"] = @_possiblySerializeHeaderValue value
-      return true
-    , {}
-
-  #because request doesn't serialize arrays correctly for headers.
+  # because request doesn't serialize arrays correctly for headers.
   _possiblySerializeHeaderValue: (value) =>
     return value if _.isString value
     return value if _.isBoolean value
     return value if _.isNumber value
     return JSON.stringify value
+
+  _subscriptions: (uuid, metadata, callback=->) =>
+    options = @_getDefaultRequestOptions()
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
+
+    @request.get "/v2/devices/#{uuid}/subscriptions", options, (error, response, body) =>
+      debug "subscriptions", error, body
+      @_handleResponse {error, response, body}, callback
+
+  _subscriptionUrl: (options) =>
+    {subscriberUuid, emitterUuid, type} = options
+    "/v2/devices/#{subscriberUuid}/subscriptions/#{emitterUuid}/#{type}"
+
+  _update: (uuid, params, metadata, callback=->) =>
+    options = @_getDefaultRequestOptions()
+    options.json = params
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
+
+    @request.patch "/v2/devices/#{uuid}", options, (error, response, body) =>
+      debug "update", error, body
+      @_handleResponse {error, response, body}, callback
 
   _userError: (code, message) =>
     error = new Error message
