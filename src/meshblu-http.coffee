@@ -2,7 +2,7 @@ _     = require 'lodash'
 url   = require 'url'
 debug = require('debug')('meshblu-http')
 stableStringify = require 'json-stable-stringify'
-MeshbluRequest = require './meshblu-request'
+MeshbluRequest = require './meshblu-request.coffee'
 
 class MeshbluHttp
   @SUBSCRIPTION_TYPES = [
