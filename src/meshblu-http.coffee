@@ -26,6 +26,7 @@ class MeshbluHttp
       hostname
       port
       protocol
+      resolveSrv
       @auth
       @raw
       @keepAlive
@@ -34,12 +35,12 @@ class MeshbluHttp
     auth = {username: uuid, password: token}
 
     @protocol ?= 'https'
-    throw new Error('protocol must be one of http/https/<null>') unless _.include ['http', 'https'], @protocol
+    throw new Error('protocol must be one of http/https/<null>') unless _.includes ['http', 'https'], @protocol
 
     try port = parseInt port
 
     {@request, @NodeRSA} = @dependencies
-    @request ?= new MeshbluRequest {protocol, hostname, port, request: {auth}}
+    @request ?= new MeshbluRequest {protocol, hostname, port, resolveSrv, request: {auth}}
     @NodeRSA ?= require 'node-rsa'
 
   _getDefaultRequestOptions: =>
