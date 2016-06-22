@@ -5,6 +5,65 @@ sinon = require 'sinon'
 MeshbluHttp = require '../src/meshblu-http'
 
 describe 'MeshbluHttp', ->
+  describe '->constructor', ->
+    describe 'when constructed with !resolveSrv and a domain', ->
+      it 'should throw an exception', ->
+        construction = => new MeshbluHttp resolveSrv: false, domain: 'foo.com'
+        expect(construction).to.throw 'resolveSrv is set to false, but received domain'
+
+    describe 'when constructed with !resolveSrv and a service', ->
+      it 'should throw an exception', ->
+        construction = => new MeshbluHttp resolveSrv: false, service: 'bacon'
+        expect(construction).to.throw 'resolveSrv is set to false, but received service'
+
+    describe 'when constructed with !resolveSrv and a secure', ->
+      it 'should throw an exception', ->
+        construction = => new MeshbluHttp resolveSrv: false, secure: false
+        expect(construction).to.throw 'resolveSrv is set to false, but received secure'
+
+    describe 'when constructed with resolveSrv and a protocol', ->
+      it 'should throw an exception', ->
+        construction = => new MeshbluHttp resolveSrv: true, protocol: 'http'
+        expect(construction).to.throw 'resolveSrv is set to true, but received protocol'
+
+    describe 'when constructed with resolveSrv and a hostname', ->
+      it 'should throw an exception', ->
+        construction = => new MeshbluHttp resolveSrv: true, hostname: 'bacon.biz'
+        expect(construction).to.throw 'resolveSrv is set to true, but received hostname'
+
+    describe 'when constructed with resolveSrv and a port', ->
+      it 'should throw an exception', ->
+        construction = => new MeshbluHttp resolveSrv: true, port: 443
+        expect(construction).to.throw 'resolveSrv is set to true, but received port'
+
+    describe 'when constructed with !resolveSrv and no url params', ->
+      it 'should throw an exception', ->
+        MeshbluRequest = sinon.spy()
+        new MeshbluHttp resolveSrv: false, auth: {}, {MeshbluRequest: MeshbluRequest}
+
+        expect(MeshbluRequest).to.have.been.calledWithNew
+        expect(MeshbluRequest).to.have.been.calledWith {
+          resolveSrv: false
+          protocol: 'https'
+          hostname: 'meshblu.octoblu.com'
+          port: 443
+          request: {auth: {}}
+        }
+
+    describe 'when constructed with resolveSrv and no srv params', ->
+      it 'should throw an exception', ->
+        MeshbluRequest = sinon.spy()
+        new MeshbluHttp resolveSrv: true, auth: {}, {MeshbluRequest: MeshbluRequest}
+
+        expect(MeshbluRequest).to.have.been.calledWithNew
+        expect(MeshbluRequest).to.have.been.calledWith {
+          resolveSrv: true
+          service: 'meshblu'
+          domain: 'octoblu.com'
+          secure: true
+          request: {auth: {}}
+        }
+
   describe '->authenticate', ->
     beforeEach ->
       @request = post: sinon.stub()
@@ -580,7 +639,8 @@ describe 'MeshbluHttp', ->
 
     describe 'with an invalid device', ->
       beforeEach (done) ->
-        @request.delete = sinon.stub().yields new Error('unable to delete device'), {statusCode: 404}, "Device not found"
+        error = new Error('unable to delete device')
+        @request.delete = sinon.stub().yields error, {statusCode: 404}, "Device not found"
         @sut.unregister {uuid: 'NOPE', token: 'NO'}, (@error) => done()
 
       it 'should have an error', ->

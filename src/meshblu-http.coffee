@@ -2,7 +2,6 @@ _     = require 'lodash'
 url   = require 'url'
 debug = require('debug')('meshblu-http')
 stableStringify = require 'json-stable-stringify'
-MeshbluRequest  = require './meshblu-request.coffee'
 
 class MeshbluHttp
   @SUBSCRIPTION_TYPES = [
@@ -19,13 +18,16 @@ class MeshbluHttp
   ]
 
   constructor: (options={}, @dependencies={}) ->
-    options = _.defaults _.cloneDeep(options), protocol: 'https', hostname: 'meshblu.octoblu.com'
+    options = _.cloneDeep options
     {
       uuid
       token
       hostname
       port
       protocol
+      domain
+      service
+      secure
       resolveSrv
       auth
       @raw
@@ -34,14 +36,10 @@ class MeshbluHttp
     @keepAlive ?= true
     auth ?= {username: uuid, password: token} if uuid? || token?
 
-    @protocol ?= 'https'
-    throw new Error('protocol must be one of http/https/<null>') unless _.includes ['http', 'https'], @protocol
-
-    try port = parseInt port
-
-    {@request, @NodeRSA} = @dependencies
-    @request ?= new MeshbluRequest {protocol, hostname, port, resolveSrv, request: {auth}}
-    @NodeRSA ?= require 'node-rsa'
+    {request, @MeshbluRequest, @NodeRSA} = @dependencies
+    @MeshbluRequest ?= require './meshblu-request'
+    @NodeRSA        ?= require 'node-rsa'
+    @request = @_buildRequest {request, protocol, hostname, port, service, domain, secure, resolveSrv, auth}
 
   authenticate: (callback) =>
     options = @_getDefaultRequestOptions()
@@ -217,6 +215,37 @@ class MeshbluHttp
     @request.get "/v2/whoami", options, (error, response, body) =>
       debug "whoami", error, body
       @_handleResponse {error, response, body}, callback
+
+  _assertNoSrv: ({service, domain, secure}) =>
+    throw new Error('resolveSrv is set to false, but received domain')  if domain?
+    throw new Error('resolveSrv is set to false, but received service') if service?
+    throw new Error('resolveSrv is set to false, but received secure')  if secure?
+
+  _assertNoUrl: ({protocol, hostname, port}) =>
+    throw new Error('resolveSrv is set to true, but received protocol') if protocol?
+    throw new Error('resolveSrv is set to true, but received hostname') if hostname?
+    throw new Error('resolveSrv is set to true, but received port')     if port?
+
+  _buildRequest: ({request, protocol, hostname, port, service, domain, secure, resolveSrv, auth}) =>
+    return request if request?
+
+    return @_buildSrvRequest({protocol, hostname, port, service, domain, secure, auth}) if resolveSrv
+    return @_buildUrlRequest({protocol, hostname, port, service, domain, secure, auth})
+
+  _buildSrvRequest: ({protocol, hostname, port, service, domain, secure, auth}) =>
+    @_assertNoUrl({protocol, hostname, port})
+    service ?= 'meshblu'
+    domain ?= 'octoblu.com'
+    secure ?= true
+    return new @MeshbluRequest {resolveSrv: true, service, domain, secure, request: {auth}}
+
+  _buildUrlRequest: ({protocol, hostname, port, service, domain, secure, auth}) =>
+    @_assertNoSrv({service, domain, secure})
+    protocol ?= 'https'
+    hostname ?= 'meshblu.octoblu.com'
+    port     ?= 443
+    try port = parseInt port
+    return new @MeshbluRequest {resolveSrv: false, protocol, hostname, port, request: {auth}}
 
   _devices: (query, metadata, callback=->) =>
     options = @_getDefaultRequestOptions()
