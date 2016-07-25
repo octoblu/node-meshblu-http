@@ -32,8 +32,10 @@ class MeshbluHttp
       auth
       @raw
       @keepAlive
+      @gzip
     } = options
     @keepAlive ?= true
+    @gzip ?= true
     auth ?= {username: uuid, password: token} if uuid? || token?
 
     {request, @MeshbluRequest, @NodeRSA} = @dependencies
@@ -261,6 +263,7 @@ class MeshbluHttp
     return {
       json: true
       forever: @keepAlive
+      gzip: @gzip
     }
 
   _getMetadataHeaders: (metadata) =>

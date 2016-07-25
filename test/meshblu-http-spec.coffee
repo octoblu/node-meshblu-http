@@ -162,6 +162,7 @@ describe 'MeshbluHttp', ->
           headers: {}
           json: true
           forever: true
+          gzip: true
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
@@ -179,6 +180,7 @@ describe 'MeshbluHttp', ->
             'x-meshblu-as': 'aaron'
           json: true
           forever: true
+          gzip: true
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
@@ -272,6 +274,7 @@ describe 'MeshbluHttp', ->
             type: 'octoblu:test'
           json: true
           forever: true
+          gzip: true
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
@@ -326,6 +329,7 @@ describe 'MeshbluHttp', ->
             devices: 'uuid'
           headers: {}
           forever: true
+          gzip: true
 
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
@@ -354,6 +358,7 @@ describe 'MeshbluHttp', ->
             'x-meshblu-bacon-fat': true
             'x-meshblu-lasers': false
           forever: true
+          gzip: true
 
     describe 'with a message with metadata', ->
       beforeEach (done) ->
@@ -367,6 +372,7 @@ describe 'MeshbluHttp', ->
           headers:
             'x-meshblu-forwarded-for': '["some-real-device"]'
           forever: true
+          gzip: true
 
 
     describe 'when an error happens', ->
@@ -556,6 +562,7 @@ describe 'MeshbluHttp', ->
             type: 'octoblu:test'
           headers: {}
           forever: true
+          gzip: true
 
       it 'should call callback', ->
         expect(@body).to.deep.equal @searchResults
@@ -580,6 +587,7 @@ describe 'MeshbluHttp', ->
             'x-meshblu-bacon-fat': true
             'x-meshblu-lasers': false
           forever: true
+          gzip: true
 
   describe '->setPrivateKey', ->
     beforeEach ->
@@ -892,6 +900,7 @@ describe 'MeshbluHttp', ->
           headers: {}
           json: true
           forever: true
+          gzip: true
 
       it 'should call callback', ->
         expect(@body).to.deep.equal [uuid: 'erik-is-so-popular', type: 'received']
@@ -907,6 +916,7 @@ describe 'MeshbluHttp', ->
             'x-meshblu-as': 'aaron'
           json: true
           forever: true
+          gzip: true
 
       it 'should call callback', ->
         expect(@body).to.deep.equal [uuid: 'erik-is-so-popular', type: 'received']
