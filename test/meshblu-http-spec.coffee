@@ -589,6 +589,53 @@ describe 'MeshbluHttp', ->
           forever: true
           gzip: true
 
+  describe '->searchTokens', ->
+    beforeEach ->
+      @request = post: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp {}, @dependencies
+
+    describe 'with a valid search', ->
+      beforeEach (done) ->
+        @searchResults = [
+          {uuid: 'device-uuid1', metadata: tag: 'octoblu:test'}
+        ]
+
+        @request.post.yields null, {}, @searchResults
+        @sut.searchTokens {metadata: tag: 'octoblu:test'}, {}, (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.post).to.have.been.calledWith '/search/tokens',
+          json:
+            metadata: tag: 'octoblu:test'
+          headers: {}
+          forever: true
+          gzip: true
+
+      it 'should call callback', ->
+        expect(@body).to.deep.equal @searchResults
+
+    describe 'with a search with metadata', ->
+      beforeEach (done) ->
+        @searchResults = [
+          {uuid: 'device-uuid1', metadata: tag: 'octoblu:test'}
+          {uuid: 'device-uuid2', metadata: tag: 'octoblu:test'}
+          {uuid: 'device-uuid3', metadata: tag: 'octoblu:test'}
+        ]
+
+        @request.post.yields null, {}, @searchResults
+        @sut.search {metadata: tag: 'octoblu:test'}, {baconFat: true, lasers: false}, (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.post).to.have.been.calledWith '/search/devices',
+          json:
+            metadata: tag: 'octoblu:test'
+          headers:
+            'x-meshblu-bacon-fat': true
+            'x-meshblu-lasers': false
+          forever: true
+          gzip: true
+
   describe '->setPrivateKey', ->
     beforeEach ->
       @nodeRSA = {}

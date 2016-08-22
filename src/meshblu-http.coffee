@@ -174,6 +174,13 @@ class MeshbluHttp
     @request.post "/search/devices", options, (error, response, body) =>
       @_handleResponse {error, response, body}, callback
 
+  searchTokens: (query, metadata, callback) =>
+    options = @_getDefaultRequestOptions()
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
+    options.json = query
+    @request.post "/search/tokens", options, (error, response, body) =>
+      @_handleResponse {error, response, body}, callback
+
   setPrivateKey: (privateKey) =>
     @privateKey = new @NodeRSA privateKey
 
