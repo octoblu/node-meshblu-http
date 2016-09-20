@@ -17,3 +17,8 @@ deploy:
   on:
     tags: true
     branches: true
+after_success:
+- npm run coverage
+- npm run mocha:json
+- bash <(curl -s https://codecov.io/bash)
+- bash <(curl -s https://codecov.octoblu.com/bash)

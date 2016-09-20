@@ -4,7 +4,10 @@
   "description": "Meshblu HTTP API",
   "main": "index.js",
   "scripts": {
-    "test": "istanbul cover _mocha -- -R spec --require coffee-coverage/register-istanbul"
+    "test": "mocha",
+    "coverage": "nyc npm test",
+    "mocha:json": "env NPM_ENV=test mocha --reporter json > coverage/mocha.json",
+    "test:watch": "mocha -w -R mocha-multi --reporter-options spec=-,mocha-osx-reporter=-"
   },
   "repository": {
     "type": "git",
@@ -22,11 +25,11 @@
   "homepage": "https://github.com/octoblu/node-meshblu-http",
   "devDependencies": {
     "chai": "^2.3.0",
-    "coffee-coverage": "^0.6.3",
     "coffee-script": "^1.10.0",
-    "istanbul": "^0.3.21",
     "mocha": "^2.3.3",
-    "mocha-istanbul": "^0.2.0",
+    "mocha-multi": "^0.9.1",
+    "mocha-osx-reporter": "^0.1.2",
+    "nyc": "^8.3.0",
     "sinon": "^1.17.1",
     "sinon-chai": "^2.8.0"
   },
@@ -37,5 +40,16 @@
     "lodash": "^4.13.1",
     "node-rsa": "^0.2.23",
     "request": "^2.72.0"
+  },
+  "nyc": {
+    "cache": true,
+    "reporter": [
+      "text-summary",
+      "lcov",
+      "json"
+    ],
+    "extension": [
+      ".coffee"
+    ]
   }
 }
