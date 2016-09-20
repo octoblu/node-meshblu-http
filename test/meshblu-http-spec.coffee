@@ -9,32 +9,32 @@ describe 'MeshbluHttp', ->
     describe 'when constructed with !resolveSrv and a domain', ->
       it 'should throw an exception', ->
         construction = => new MeshbluHttp resolveSrv: false, domain: 'foo.com'
-        expect(construction).to.throw 'resolveSrv is set to false, but received domain'
+        expect(construction).to.throw 'domain property only applies when resolveSrv is true'
 
     describe 'when constructed with !resolveSrv and a service', ->
       it 'should throw an exception', ->
         construction = => new MeshbluHttp resolveSrv: false, service: 'bacon'
-        expect(construction).to.throw 'resolveSrv is set to false, but received service'
+        expect(construction).to.throw 'service property only applies when resolveSrv is true'
 
     describe 'when constructed with !resolveSrv and a secure', ->
       it 'should throw an exception', ->
         construction = => new MeshbluHttp resolveSrv: false, secure: false
-        expect(construction).to.throw 'resolveSrv is set to false, but received secure'
+        expect(construction).to.throw 'secure property only applies when resolveSrv is true'
 
     describe 'when constructed with resolveSrv and a protocol', ->
       it 'should throw an exception', ->
         construction = => new MeshbluHttp resolveSrv: true, protocol: 'http'
-        expect(construction).to.throw 'resolveSrv is set to true, but received protocol'
+        expect(construction).to.throw 'protocol property only applies when resolveSrv is false'
 
     describe 'when constructed with resolveSrv and a hostname', ->
       it 'should throw an exception', ->
         construction = => new MeshbluHttp resolveSrv: true, hostname: 'bacon.biz'
-        expect(construction).to.throw 'resolveSrv is set to true, but received hostname'
+        expect(construction).to.throw 'hostname property only applies when resolveSrv is false'
 
     describe 'when constructed with resolveSrv and a port', ->
       it 'should throw an exception', ->
         construction = => new MeshbluHttp resolveSrv: true, port: 443
-        expect(construction).to.throw 'resolveSrv is set to true, but received port'
+        expect(construction).to.throw 'port property only applies when resolveSrv is false'
 
     describe 'when constructed with !resolveSrv and no url params', ->
       it 'should throw an exception', ->

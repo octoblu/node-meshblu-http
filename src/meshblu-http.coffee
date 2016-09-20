@@ -226,14 +226,14 @@ class MeshbluHttp
       @_handleResponse {error, response, body}, callback
 
   _assertNoSrv: ({service, domain, secure}) =>
-    throw new Error('resolveSrv is set to false, but received domain')  if domain?
-    throw new Error('resolveSrv is set to false, but received service') if service?
-    throw new Error('resolveSrv is set to false, but received secure')  if secure?
+    throw new Error('domain property only applies when resolveSrv is true')  if domain?
+    throw new Error('service property only applies when resolveSrv is true') if service?
+    throw new Error('secure property only applies when resolveSrv is true')  if secure?
 
   _assertNoUrl: ({protocol, hostname, port}) =>
-    throw new Error('resolveSrv is set to true, but received protocol') if protocol?
-    throw new Error('resolveSrv is set to true, but received hostname') if hostname?
-    throw new Error('resolveSrv is set to true, but received port')     if port?
+    throw new Error('protocol property only applies when resolveSrv is false') if protocol?
+    throw new Error('hostname property only applies when resolveSrv is false') if hostname?
+    throw new Error('port property only applies when resolveSrv is false')     if port?
 
   _buildRequest: ({request, protocol, hostname, port, service, domain, secure, resolveSrv, auth}) =>
     return request if request?
