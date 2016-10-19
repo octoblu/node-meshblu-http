@@ -82,10 +82,17 @@ class MeshbluHttp
     @request.delete url, requestOptions, (error, response, body) =>
       @_handleResponse {error, response, body}, callback
 
-  device: (deviceUuid, callback=->) =>
-    options = @_getDefaultRequestOptions()
+  device: (uuid, rest...) =>
+    [callback] = rest
+    [metadata, callback] = rest if _.isPlainObject callback
+    metadata ?= {}
+    @_device uuid, metadata, callback
 
-    @request.get "/v2/devices/#{deviceUuid}", options, (error, response, body) =>
+  _device: (uuid, metadata, callback=->) =>
+    options = @_getDefaultRequestOptions()
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
+
+    @request.get "/v2/devices/#{uuid}", options, (error, response, body) =>
       debug "device", error, body
       @_handleResponse {error, response, body}, callback
 

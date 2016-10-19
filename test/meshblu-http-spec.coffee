@@ -133,6 +133,22 @@ describe 'MeshbluHttp', ->
       it 'should callback with an error', ->
         expect(@error).to.exist
 
+    describe 'with a valid uuid and metadata', ->
+      beforeEach (done) ->
+        @request.get.yields null, {}, foo: 'bar'
+        @sut.device 'the-uuuuid', {as: 'aaron'}, (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith '/v2/devices/the-uuuuid',
+          headers:
+            'x-meshblu-as': 'aaron'
+          json: true
+          forever: true
+          gzip: true
+
+      it 'should call callback', ->
+        expect(@body).to.deep.equal foo: 'bar'
+
     describe 'when a meshblu error body is returned', ->
       beforeEach (done) ->
         @request.get.yields null, {statusCode: 500}, error: 'something wrong'
