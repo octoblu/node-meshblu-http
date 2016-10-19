@@ -796,6 +796,22 @@ describe 'MeshbluHttp', ->
       it 'should call request.put on the device', ->
         expect(@request.put).to.have.been.calledWith '/v2/devices/howdy'
 
+    describe 'with a uuid, params, and metadata', ->
+      beforeEach (done) ->
+        @request.put = sinon.stub().yields null, statusCode: 204, uuid: 'howdy'
+        @sut.updateDangerously 'howdy', {sam: 'I am'}, {as: 'aaron'}, (@error) => done()
+
+      it 'should not have an error', ->
+        expect(@error).to.not.exist
+
+      it 'should call request.put on the device', ->
+        expect(@request.put).to.have.been.calledWith '/v2/devices/howdy',
+          headers:
+            'x-meshblu-as': 'aaron'
+          json: {sam: 'I am'}
+          forever: true
+          gzip: true
+
     describe 'with an invalid device', ->
       beforeEach (done) ->
         @request.put = sinon.stub().yields new Error('unable to update device'), null, null
