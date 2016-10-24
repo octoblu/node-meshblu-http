@@ -1130,4 +1130,4 @@ describe 'MeshbluHttp', ->
         @sut.deleteSubscription options, (@error, @body) => done()
 
       it 'should yield an error', ->
-        expect(=> throw @error).to.throw 'Unknown Error Occurred'
+        expect(=> throw @error).to.throw 'Invalid Response Code 472'

@@ -48,11 +48,7 @@ class MeshbluHttp
 
     @request.post "/authenticate", options, (error, response, body) =>
       debug "authenticate", error, body
-      return callback @_userError(500, error.message) if error?
-      return callback @_userError(response.statusCode, body?.error) if body?.error?
-      return callback @_userError(response.statusCode, body) if response.statusCode >= 400
-
-      callback null, body
+      @_handleResponse {error, response, body}, callback
 
   createHook: (uuid, type, url, callback) =>
     error = new Error "Hook type not supported. supported types are: #{MeshbluHttp.SUBSCRIPTION_TYPES.join ', '}"
@@ -303,23 +299,28 @@ class MeshbluHttp
         'content-type': 'application/json'
     }
 
-  _handleError: ({message, code}, callback) =>
+  _handleError: ({message,code,response}, callback) =>
     message ?= 'Unknown Error Occurred'
-    error = @_userError code, message
+    response = response?.toJSON?()
+    debug 'handling error', { message, code, response }
+    error = @_userError code, message, response
     callback error
 
   _handleResponse: ({error, response, body}, callback) =>
-    return @_handleError message: error.message, callback if error?
+    return @_handleError { message: error.message, code: error?.code, response }, callback if error?
+    code = response?.statusCode
 
-    if response.headers?['x-meshblu-error']?
+    if response?.headers?['x-meshblu-error']?
       error = JSON.parse response.headers['x-meshblu-error']
-      return @_handleError message: error.message, code: response.statusCode, callback
+      return @_handleError { message: error.message, response, code }, callback
 
     if body?.error?
-      return @_handleError message: body.error, code: response.statusCode, callback
+      return @_handleError { message: body.error, response, code }, callback
 
-    if response.statusCode >= 400
-      return @_handleError code: response.statusCode, message: body, callback
+    if code >= 400
+      message = body if _.isString body
+      message ?= "Invalid Response Code #{code}"
+      return @_handleError { message, response, code }, callback
 
     callback null, body
 
@@ -338,10 +339,7 @@ class MeshbluHttp
 
     @request.post "/messages", options, (error, response, body) =>
       debug "message", error, body
-      return callback @_userError(500, error.message) if error?
-      return callback @_userError(response.statusCode, body?.error) if body?.error?
-
-      callback null, body
+      @_handleResponse {error, response, body}, callback
 
   # because request doesn't serialize arrays correctly for headers.
   _possiblySerializeHeaderValue: (value) =>
@@ -371,9 +369,10 @@ class MeshbluHttp
       debug "update", error, body
       @_handleResponse {error, response, body}, callback
 
-  _userError: (code, message) =>
+  _userError: (code, message, response) =>
     error = new Error message
     error.code = code
+    error.response = response if response?
     error
 
 module.exports = MeshbluHttp
