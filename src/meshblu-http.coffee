@@ -99,6 +99,19 @@ class MeshbluHttp
 
     @_devices query, metadata, callback
 
+  findAndUpdate: (uuid, params, rest...) =>
+    [callback] = rest
+    [metadata, callback] = rest if _.isPlainObject callback
+    metadata ?= {}
+
+    options = @_getDefaultRequestOptions()
+    options.json = params
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
+
+    @request.put "/v2/devices/#{uuid}/find-and-update", options, (error, response, body) =>
+      debug "update", error, body
+      @_handleResponse {error, response, body}, callback
+
   generateAndStoreToken: (deviceUuid, callback=->) =>
     options = @_getDefaultRequestOptions()
 

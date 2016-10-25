@@ -829,6 +829,56 @@ describe 'MeshbluHttp', ->
         expect(@error).to.be.an.instanceOf Error
         expect(@error.message).to.equal 'body error'
 
+  describe '->findAndUpdate', ->
+    beforeEach ->
+      @request = put: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp {uuid: 'uuid', token: 'token'}, @dependencies
+
+    describe 'with a uuid and params', ->
+      beforeEach (done) ->
+        @request.put = sinon.stub().yields null, statusCode: 204, uuid: 'howdy'
+        @sut.findAndUpdate 'howdy', {sam: 'I am'}, (@error) => done()
+
+      it 'should not have an error', ->
+        expect(@error).to.not.exist
+
+      it 'should call request.put on the device', ->
+        expect(@request.put).to.have.been.calledWith '/v2/devices/howdy/find-and-update'
+
+    describe 'with a uuid, params, and metadata', ->
+      beforeEach (done) ->
+        @request.put = sinon.stub().yields null, statusCode: 204, uuid: 'howdy'
+        @sut.findAndUpdate 'howdy', {sam: 'I am'}, {as: 'aaron'}, (@error) => done()
+
+      it 'should not have an error', ->
+        expect(@error).to.not.exist
+
+      it 'should call request.put on the device', ->
+        expect(@request.put).to.have.been.calledWith '/v2/devices/howdy/find-and-update',
+          headers:
+            'x-meshblu-as': 'aaron'
+          json: {sam: 'I am'}
+          forever: true
+          gzip: true
+
+    describe 'with an invalid device', ->
+      beforeEach (done) ->
+        @request.put = sinon.stub().yields new Error('unable to update device'), null, null
+        @sut.findAndUpdate 'NOPE', {}, (@error) => done()
+
+      it 'should have an error', ->
+        expect(@error.message).to.equal 'unable to update device'
+
+    describe 'when request returns an error in the body with a statusCode', ->
+      beforeEach (done) ->
+        @request.put = sinon.stub().yields null, {statusCode: 422}, error: 'body error'
+        @sut.findAndUpdate 'NOPE', {}, (@error) => done()
+
+      it 'should have an error', ->
+        expect(@error).to.be.an.instanceOf Error
+        expect(@error.message).to.equal 'body error'
+
   describe '->forward', ->
     beforeEach ->
       @request = put: sinon.stub()
