@@ -37,7 +37,7 @@ describe 'MeshbluHttp', ->
         expect(construction).to.throw 'port property only applies when resolveSrv is false'
 
     describe 'when constructed with !resolveSrv and no url params', ->
-      it 'should throw an exception', ->
+      it 'should create the correct MeshbluRequest', ->
         MeshbluRequest = sinon.spy()
         new MeshbluHttp resolveSrv: false, auth: {}, {MeshbluRequest: MeshbluRequest}
 
@@ -51,7 +51,7 @@ describe 'MeshbluHttp', ->
         }
 
     describe 'when constructed with resolveSrv and no srv params', ->
-      it 'should throw an exception', ->
+      it 'should create the correct MeshbluRequest', ->
         MeshbluRequest = sinon.spy()
         new MeshbluHttp resolveSrv: true, auth: {}, {MeshbluRequest: MeshbluRequest}
 
@@ -62,6 +62,44 @@ describe 'MeshbluHttp', ->
           domain: 'octoblu.com'
           secure: true
           request: {auth: {}}
+        }
+
+    describe 'when constructed with uuid and token', ->
+      it 'should create the correct MeshbluRequest', ->
+        MeshbluRequest = sinon.spy()
+        new MeshbluHttp {uuid: 'the-uuid', token: 'the-token'}, {MeshbluRequest: MeshbluRequest}
+
+        expect(MeshbluRequest).to.have.been.calledWithNew
+        expect(MeshbluRequest).to.have.been.calledWith {
+          resolveSrv: false
+          protocol: 'https'
+          hostname: 'meshblu.octoblu.com'
+          port: 443
+          request: {auth: {username: 'the-uuid', password: 'the-token'}}
+        }
+
+    describe 'when constructed with just a uuid and no token', ->
+      it 'should throw an exception', ->
+        construction = => new MeshbluHttp { uuid: 'the-uuid' }
+        expect(construction).to.throw 'a uuid is provided but the token is not'
+
+    describe 'when constructed with just a token and no uuid', ->
+      it 'should throw an exception', ->
+        construction = => new MeshbluHttp { token: 'the-token' }
+        expect(construction).to.throw 'a token is provided but the uuid is not'
+
+    describe 'when constructed with no uuid and token', ->
+      it 'should create the correct MeshbluRequest', ->
+        MeshbluRequest = sinon.spy()
+        new MeshbluHttp {}, {MeshbluRequest: MeshbluRequest}
+
+        expect(MeshbluRequest).to.have.been.calledWithNew
+        expect(MeshbluRequest).to.have.been.calledWith {
+          resolveSrv: false
+          protocol: 'https'
+          hostname: 'meshblu.octoblu.com'
+          port: 443
+          request: {}
         }
 
   describe '->authenticate', ->

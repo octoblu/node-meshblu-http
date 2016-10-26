@@ -36,7 +36,11 @@ class MeshbluHttp
     } = options
     @keepAlive ?= true
     @gzip ?= true
-    auth ?= {username: uuid, password: token} if uuid? || token?
+
+    throw new Error 'a uuid is provided but the token is not' if uuid? && !token?
+    throw new Error 'a token is provided but the uuid is not' if token? && !uuid?
+    
+    auth ?= {username: uuid, password: token} if uuid? && token?
 
     {request, @MeshbluRequest, @NodeRSA} = @dependencies
     @MeshbluRequest ?= require './meshblu-request'
@@ -271,7 +275,9 @@ class MeshbluHttp
     service ?= 'meshblu'
     domain ?= 'octoblu.com'
     secure ?= true
-    return new @MeshbluRequest {resolveSrv: true, service, domain, secure, request: {auth}}
+    request = {}
+    request.auth = auth if auth?
+    return new @MeshbluRequest {resolveSrv: true, service, domain, secure, request}
 
   _buildUrlRequest: ({protocol, hostname, port, service, domain, secure, auth}) =>
     @_assertNoSrv({service, domain, secure})
@@ -279,7 +285,9 @@ class MeshbluHttp
     hostname ?= 'meshblu.octoblu.com'
     port     ?= 443
     try port = parseInt port
-    return new @MeshbluRequest {resolveSrv: false, protocol, hostname, port, request: {auth}}
+    request = {}
+    request.auth = auth if auth?
+    return new @MeshbluRequest {resolveSrv: false, protocol, hostname, port, request }
 
   _devices: (query, metadata, callback=->) =>
     options = @_getDefaultRequestOptions()
