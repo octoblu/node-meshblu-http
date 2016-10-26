@@ -64,6 +64,20 @@ describe 'MeshbluHttp', ->
           request: {auth: {}}
         }
 
+    describe 'when constructed with timeout', ->
+      it 'should create the correct MeshbluRequest', ->
+        MeshbluRequest = sinon.spy()
+        new MeshbluHttp {timeout: 1001}, {MeshbluRequest: MeshbluRequest}
+
+        expect(MeshbluRequest).to.have.been.calledWithNew
+        expect(MeshbluRequest).to.have.been.calledWith {
+          resolveSrv: false
+          protocol: 'https'
+          hostname: 'meshblu.octoblu.com'
+          port: 443
+          request: {timeout: 1001}
+        }
+
     describe 'when constructed with uuid and token', ->
       it 'should create the correct MeshbluRequest', ->
         MeshbluRequest = sinon.spy()

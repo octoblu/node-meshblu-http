@@ -33,13 +33,14 @@ class MeshbluHttp
       @raw
       @keepAlive
       @gzip
+      @timeout
     } = options
     @keepAlive ?= true
     @gzip ?= true
 
     throw new Error 'a uuid is provided but the token is not' if uuid? && !token?
     throw new Error 'a token is provided but the uuid is not' if token? && !uuid?
-    
+
     auth ?= {username: uuid, password: token} if uuid? && token?
 
     {request, @MeshbluRequest, @NodeRSA} = @dependencies
@@ -277,6 +278,7 @@ class MeshbluHttp
     secure ?= true
     request = {}
     request.auth = auth if auth?
+    request.timeout = @timeout if @timeout?
     return new @MeshbluRequest {resolveSrv: true, service, domain, secure, request}
 
   _buildUrlRequest: ({protocol, hostname, port, service, domain, secure, auth}) =>
@@ -287,6 +289,7 @@ class MeshbluHttp
     try port = parseInt port
     request = {}
     request.auth = auth if auth?
+    request.timeout = @timeout if @timeout?
     return new @MeshbluRequest {resolveSrv: false, protocol, hostname, port, request }
 
   _devices: (query, metadata, callback=->) =>
