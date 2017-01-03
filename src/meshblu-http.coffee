@@ -137,6 +137,13 @@ class MeshbluHttp
 
     privateKey: key.exportKey('private'), publicKey: key.exportKey('public')
 
+  healthcheck: (callback=->) =>
+    options = @_getDefaultRequestOptions()
+    @request.get '/healthcheck', options, (error, response) =>
+      return callback error if error?
+      healthy = response.statusCode == 200
+      return callback null, healthy
+
   message: (message, rest...) =>
     [callback] = rest
     [metadata, callback] = rest if _.isPlainObject callback

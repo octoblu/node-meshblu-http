@@ -325,6 +325,42 @@ describe 'MeshbluHttp', ->
       it 'should callback with an error', ->
         expect(@error.message).to.deep.equal "Device not found"
 
+  describe '->healthcheck', ->
+    beforeEach ->
+      @request = get: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp {}, @dependencies
+
+    describe 'when the healthcheck passes', ->
+      beforeEach (done) ->
+        @request.get.yields null, {statusCode: 200}, online: true
+        @sut.healthcheck (error, @healthy) => done error
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith '/healthcheck',
+          json: true
+          forever: true
+          gzip: true
+
+      it 'should yield true', ->
+        expect(@healthy).to.deep.equal true
+
+    describe 'when the healthcheck fails', ->
+      beforeEach (done) ->
+        @request.get.yields null, {statusCode: 503}, 'Service Unavailable'
+        @sut.healthcheck (error, @healthy) => done error
+
+      it 'should yield false', ->
+        expect(@healthy).to.deep.equal false
+
+    describe 'when the healthcheck errors', ->
+      beforeEach (done) ->
+        @request.get.yields new Error 'Server went on vacation'
+        @sut.healthcheck (@error, @healthy) => done()
+
+      it 'should yield the error', ->
+        expect(=> throw @error).to.throw 'Server went on vacation'
+
   describe '->mydevices', ->
     beforeEach ->
       @request = get: sinon.stub()
