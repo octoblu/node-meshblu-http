@@ -142,7 +142,7 @@ class MeshbluHttp
     @request.get '/healthcheck', options, (error, response) =>
       return callback error if error?
       healthy = response.statusCode == 200
-      return callback null, healthy
+      return callback null, healthy, response.statusCode
 
   message: (message, rest...) =>
     [callback] = rest

@@ -334,7 +334,7 @@ describe 'MeshbluHttp', ->
     describe 'when the healthcheck passes', ->
       beforeEach (done) ->
         @request.get.yields null, {statusCode: 200}, online: true
-        @sut.healthcheck (error, @healthy) => done error
+        @sut.healthcheck (error, @healthy, @code) => done error
 
       it 'should call get', ->
         expect(@request.get).to.have.been.calledWith '/healthcheck',
@@ -345,13 +345,19 @@ describe 'MeshbluHttp', ->
       it 'should yield true', ->
         expect(@healthy).to.deep.equal true
 
+      it 'should yield the code', ->
+        expect(@code).to.deep.equal 200
+
     describe 'when the healthcheck fails', ->
       beforeEach (done) ->
         @request.get.yields null, {statusCode: 503}, 'Service Unavailable'
-        @sut.healthcheck (error, @healthy) => done error
+        @sut.healthcheck (error, @healthy, @code) => done error
 
       it 'should yield false', ->
         expect(@healthy).to.deep.equal false
+
+      it 'should yield the code', ->
+        expect(@code).to.deep.equal 503
 
     describe 'when the healthcheck errors', ->
       beforeEach (done) ->
