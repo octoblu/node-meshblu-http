@@ -20,14 +20,26 @@ var MeshbluHttp = require('meshblu-http');
 var meshbluHttp = new MeshbluHttp();
 
 meshbluHttp.register({}, function(error, response) {
-  // do things here
+  // code goes here
 })
 ```
 
 # Functions
 ### Constructor
+The constructor has one optional parameter, an **Object** containing options:
+
+Options include: uuid, token, hostname, port, protocol, domain, service, secure, resolveSrv, auth
+```
+var meshbluHttp = new MeshbluHttp({uuid: 'asdf', token: 'ghjk'})
+```
 
 ### Authenticate
+The authenticate function has one paramenter, a **Callback**: function(error, response){}
+```
+meshbluHttp.authenticate(function(error, response) {
+  // code goes here
+})
+```
 
 ### Create Hook
 
