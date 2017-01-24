@@ -58,51 +58,176 @@ meshbluHttp.createHook('fancy_uuid', 'fancy_token', 'fancy_url', function(error)
 ```
 
 ### Create Subscription
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Delete Subscription
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Device
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Devices
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Find And Update
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Generate And Store Token
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Generate And Store Token With Options
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Generate Key Pair
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Health Check
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Message
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### My Devices
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Public Key
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Register
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Reset Token
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Revoke Token
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Revoke Token By Query
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Search
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Search Tokens
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Set Private Key
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Sign
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Subscriptions
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Unregister
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Update
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Verify
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
 
 ### Whoami
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+|       |  |      |          |
+```
+```
