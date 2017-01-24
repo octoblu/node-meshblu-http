@@ -1,5 +1,5 @@
-# node-meshblu-http
-Meshblu HTTP API
+# Meshblu HTTP
+A node package to use the Meshblu HTTP API...
 
 [![Build Status](https://travis-ci.org/octoblu/node-meshblu-http.svg?branch=master)](https://travis-ci.org/octoblu/node-meshblu-http)
 [![Code Climate](https://codeclimate.com/github/octoblu/node-meshblu-http/badges/gpa.svg)](https://codeclimate.com/github/octoblu/node-meshblu-http)
