@@ -28,7 +28,7 @@ meshbluHttp.register({}, function(error, response) {
 ### Constructor
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-| options   | object | no      | Can contain any of these keys: uuid, token, hostname, port, protocol, domain, service, secure, resolveSrv, auth |
+| options   | object | no      | can contain any of these keys: uuid, token, hostname, port, protocol, domain, service, secure, resolveSrv, auth |
 ```
 var meshbluHttp = new MeshbluHttp({uuid: 'fancy_uuid', token: 'fancy_token'})
 ```
@@ -47,10 +47,9 @@ meshbluHttp.authenticate(function(error, response) {
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
 | uuid      | string | yes     | a string containing the uuid         |
-| token     | string | yes     | a string containing the token        |
+| type      | string | yes     | a string containing the type         |
 | url       | string | yes     | a string containing the url          |
 | callback  |function| yes     | a function that takes error          |
-
 ```
 meshbluHttp.createHook('fancy_uuid', 'fancy_token', 'fancy_url', function(error) {
   // code goes here
@@ -60,8 +59,19 @@ meshbluHttp.createHook('fancy_uuid', 'fancy_token', 'fancy_url', function(error)
 ### Create Subscription
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| options   | object | yes     | an object containing three keys: subscriberUuid, emitterUuid, and type |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.createSubscription(
+  {
+    subscriberUuid: 'fancy_uuid',
+    emitterUuid: 'another_fancy_uuid',
+    type: 'fancy_type'
+  },
+  function(error, response){
+  // code goes here
+  }
+)
 ```
 
 ### Delete Subscription
