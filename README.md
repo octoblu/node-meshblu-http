@@ -26,15 +26,17 @@ meshbluHttp.register({}, function(error, response) {
 
 # Functions
 ### Constructor
-The constructor has one optional parameter, an **Object** containing options:
-
-Options include: uuid, token, hostname, port, protocol, domain, service, secure, resolveSrv, auth
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+| options   | object | no      | Can contain any of these keys: uuid, token, hostname, port, protocol, domain, service, secure, resolveSrv, auth |
 ```
-var meshbluHttp = new MeshbluHttp({uuid: 'asdf', token: 'ghjk'})
+var meshbluHttp = new MeshbluHttp({uuid: 'fancy_uuid', token: 'fancy_token'})
 ```
 
 ### Authenticate
-The authenticate function has one paramenter, a **Callback**: function(error, response){}
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+| callback  |function| yes     | a function that takes error and response |
 ```
 meshbluHttp.authenticate(function(error, response) {
   // code goes here
@@ -42,6 +44,18 @@ meshbluHttp.authenticate(function(error, response) {
 ```
 
 ### Create Hook
+| Parameter | Type   | Required| Description                          |
+| ----------| -------| --------| -------------------------------------|
+| uuid      | string | yes     | a string containing the uuid         |
+| token     | string | yes     | a string containing the token        |
+| url       | string | yes     | a string containing the url          |
+| callback  |function| yes     | a function that takes error          |
+
+```
+meshbluHttp.createHook('fancy_uuid', 'fancy_token', 'fancy_url', function(error) {
+  // code goes here
+})
+```
 
 ### Create Subscription
 
@@ -88,8 +102,6 @@ meshbluHttp.authenticate(function(error, response) {
 ### Unregister
 
 ### Update
-
-### Update Dangerously
 
 ### Verify
 
