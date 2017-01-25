@@ -77,7 +77,20 @@ meshbluHttp.createSubscription(
 ### Delete Subscription
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| options   | object | yes     | an object containing three keys: subscriberUuid, emitterUuid, and type |
+| callback  |function| yes     | a function that takes error and response |
+
+```
+meshbluHttp.deleteSubscription(
+  {
+    subscriberUuid: 'fancy_uuid',
+    emitterUuid: 'another_fancy_uuid',
+    type: 'fancy_type'
+  },
+  function(error, response){
+  // code goes here
+  }
+)
 ```
 ```
 
