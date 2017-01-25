@@ -96,15 +96,25 @@ meshbluHttp.deleteSubscription(
 ### Device
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| uuid      | string | yes     | a string containing the uuid of the device |
+| metadata  | object | no      | an object containing metadata information |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.device('fancy_uuid', {as: 'another_user_uuid'}, function(error, response){
+  // code goes here
+})
 ```
 
 ### Devices
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| query     | object | no      | an object containing the keys you want to search for |
+| metadata  | object | no      | an object containing metadata information |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.devices({type: 'drone'}, {as: 'another_user_uuid'}, function(error, response){
+  // code goes here
+})
 ```
 
 ### Find And Update
