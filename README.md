@@ -69,7 +69,7 @@ meshbluHttp.createSubscription(
     type: 'fancy_type'
   },
   function(error, response){
-  // code goes here
+    // code goes here
   }
 )
 ```
@@ -88,10 +88,9 @@ meshbluHttp.deleteSubscription(
     type: 'fancy_type'
   },
   function(error, response){
-  // code goes here
+    // code goes here
   }
 )
-```
 ```
 
 ### Device
