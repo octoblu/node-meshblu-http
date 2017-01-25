@@ -120,8 +120,14 @@ meshbluHttp.devices({type: 'drone'}, {as: 'another_user_uuid'}, function(error, 
 ### Find And Update
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| uuid      | string | yes     | a string containing the uuid of the device |
+| params    | object | yes     | an object containing the new changes to the device |
+| metadata  | object | no      | an object containing metadata information |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.findAndUpdate('fancy_uuid', {type: 'new-type'}, function(error, response){
+  // code goes here
+})
 ```
 
 ### Generate And Store Token
