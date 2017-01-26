@@ -133,78 +133,126 @@ meshbluHttp.findAndUpdate('fancy_uuid', {type: 'new-type'}, function(error, resp
 ### Generate And Store Token
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| uuid      | string | yes     | a string containing the uuid of the device |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.generateAndStoreToken('fancy_uuid', function(error, response){
+  // code goes here
+})
 ```
 
 ### Generate And Store Token With Options
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| uuid      | string | yes     | a string containing the uuid of the device |
+| options   | object | no      | an object containing the options for the token |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.generateAndStoreTokenWithOptions('fancy_uuid', {expiresOn: '1485452874'},
+  function(error, response){
+    // code goes here
+  }
+)
 ```
 
 ### Generate Key Pair
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| none      |  |      |          |
 ```
+meshbluHttp.generateKeyPair()
 ```
 
 ### Health Check
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| callback  |function| yes     | a function that takes error, healthy, and code |
 ```
+meshbluHttp.healthcheck(function(error, healthy, code){
+  // code goes here
+})
 ```
 
 ### Message
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| message   | object | yes     | an object containing the message to send |
+| metadata  | object | no      | an object containing metadata information |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.message({data: 'hello_message'}, function(error, response){
+  // code goes here
+})
 ```
 
 ### My Devices
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| query     | object | no      | an object containing your query      |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.mydevices({type: 'drone'}, function(error, response){
+  // code goes here
+})
 ```
 
 ### Public Key
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| uuid      | string | yes     | a string containing the uuid of the device |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.publicKey('fancy_uuid', function(error, response){
+  // code goes here
+})
 ```
 
 ### Register
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| options   | object | yes     | an object containing properties that you would like your device to have. Can be empty object|
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.register({color: 'blue'}, function(error, response){
+  // code goes here
+})
 ```
 
 ### Reset Token
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| uuid      | string | yes     | a string containing the uuid of the device |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.resetToken('fancy_uuid', function(error, response){
+  // code goes here
+})
 ```
 
 ### Revoke Token
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| uuid      | string | yes     | a string containing the uuid of the device |
+| token     | string | yes     | a string containing the token of the device |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.revokeToken('fancy_uuid', 'fancy_token', function(error, response){
+  // code goes here
+})
 ```
 
 ### Revoke Token By Query
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| uuid      | string | yes     | a string containing the uuid of the device |
+| query     | object | yes     | an object containing your query      |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.revokeTokenByQuery('fancy_uuid', {expiresOn: '1485452874'},
+  function(error, response){
+    // code goes here
+  }
+)
 ```
 
 ### Search
