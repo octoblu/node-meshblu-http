@@ -258,62 +258,100 @@ meshbluHttp.revokeTokenByQuery('fancy_uuid', {expiresOn: '1485452874'},
 ### Search
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| query     | object | yes     | an object containing your query      |
+| metadata  | object | yes     | an object containing metadata information. Can be left empty |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.search({type: 'drone'}, {as: 'another_uuid'},
+  function(error, response){
+    // code goes here
+  }
+)
 ```
 
 ### Search Tokens
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| query     | object | yes     | an object containing your query      |
+| metadata  | object | yes     | an object containing metadata information. Can be left empty |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.searchTokens({expiresOn: '1485452874'}, {as: 'another_uuid'},
+  function(error, response){
+    // code goes here
+  }
+)
 ```
 
 ### Set Private Key
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| privateKey| string/object | yes     | a string or object containing your privateKey  |
 ```
+meshbluHttp.setPrivateKey(privateKey)
 ```
 
 ### Sign
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| data      | object | yes     | an object containing the data you want to sign your privateKey with |
 ```
+meshbluHttp.sign(data)
 ```
 
 ### Subscriptions
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| uuid      | string | yes     | a string containing the uuid of the device |
+| metadata  | object | no      | an object containing metadata information |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.subscriptions('fancy_uuid', {as: 'another_uuid'},
+  function(error, response){
+    // code goes here
+  }
+)
 ```
 
 ### Unregister
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| device    | object | yes     | an object containing the device credentials |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.unregister({uuid: 'abc', token: 'asd'}, function(error, response){
+  // code goes here
+})
 ```
 
 ### Update
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| uuid      | string | yes     | a string containing the uuid         |
+| params    | object | yes     | an object containing the new changes to the device |
+| metadata  | object | no      | an object containing metadata information |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.update('fancy_uuid', {color: 'green'}, function(error, response){
+  // code goes here
+})
 ```
 
 ### Verify
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| message   | string/object | yes     | data for encrypting                  |
+| signature | string | yes     | this can be obtained from sign()     |
 ```
+meshbluHttp.verify(message, signature)
 ```
 
 ### Whoami
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-|       |  |      |          |
+| callback  |function| yes     | a function that takes error and response |
 ```
+meshbluHttp.whoami(function(error, response){
+  // code goes here
+})
 ```
