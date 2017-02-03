@@ -34,6 +34,7 @@ class MeshbluHttp
       @keepAlive
       @gzip
       @timeout
+      @serviceName
     } = options
     @keepAlive ?= true
     @gzip ?= true
@@ -309,12 +310,21 @@ class MeshbluHttp
       debug "devices", error, body
       @_handleResponse {error, response, body}, callback
 
-  _getDefaultRequestOptions: =>
+  _getDefaultHeaders: =>
+    return unless @serviceName?
     return {
+      'x-meshblu-service-name': @serviceName
+    }
+
+  _getDefaultRequestOptions: =>
+    headers = @_getDefaultHeaders()
+    options = {
       json: true
       forever: @keepAlive
       gzip: @gzip
     }
+    options.headers = headers if headers?
+    return options
 
   _getMetadataHeaders: (metadata) =>
     _.transform metadata, (newMetadata, value, key) =>
@@ -324,10 +334,11 @@ class MeshbluHttp
     , {}
 
   _getRawRequestOptions: =>
+    headers = @_getDefaultHeaders() ? {}
+    headers['content-type'] = 'application/json'
     return {
-      json: false,
-      headers:
-        'content-type': 'application/json'
+      json: false
+      headers
     }
 
   _handleError: ({message,code,response}, callback) =>

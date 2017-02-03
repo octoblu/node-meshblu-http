@@ -212,6 +212,30 @@ describe 'MeshbluHttp', ->
       it 'should callback with an error', ->
         expect(@error).to.exist
 
+  describe '->with serviceName', ->
+    beforeEach ->
+      @request = get: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp serviceName: 'my-rad-service', @dependencies
+
+    describe 'with a valid query', ->
+      beforeEach (done) ->
+        @request.get.yields null, {}, foo: 'bar'
+        @sut.devices type: 'octoblu:test', (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith '/v2/devices',
+          qs:
+            type: 'octoblu:test'
+          headers:
+            'x-meshblu-service-name': 'my-rad-service'
+          json: true
+          forever: true
+          gzip: true
+
+      it 'should call callback', ->
+        expect(@body).to.deep.equal foo: 'bar'
+
   describe '->devices', ->
     beforeEach ->
       @request = get: sinon.stub()
