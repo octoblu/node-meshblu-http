@@ -248,8 +248,8 @@ class MeshbluHttp
     options.json = params
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
-    debug "about to update", uuid, params
     @request.put "/v2/devices/#{uuid}", options, (error, response, body) =>
+      debug "updated", uuid, params
       debug "update", error, body
       @_handleResponse {error, response, body}, callback
 
