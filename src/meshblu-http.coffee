@@ -344,7 +344,7 @@ class MeshbluHttp
   _handleError: ({message,code,response}, callback) =>
     message ?= 'Unknown Error Occurred'
     response = response?.toJSON?()
-    debug 'handling error', { message, code, response }
+    debug 'handling error', JSON.stringify({ message, code, response }, null, 2)
     error = @_userError code, message, response
     callback error
 
