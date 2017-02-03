@@ -243,12 +243,12 @@ class MeshbluHttp
 
     @_updateDangerously uuid, params, metadata, callback
 
-
   _updateDangerously: (uuid, params, metadata, callback=->) =>
     options = @_getDefaultRequestOptions()
     options.json = params
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
+    debug "about to update", uuid, params
     @request.put "/v2/devices/#{uuid}", options, (error, response, body) =>
       debug "update", error, body
       @_handleResponse {error, response, body}, callback
