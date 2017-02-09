@@ -316,6 +316,22 @@ describe 'MeshbluHttp', ->
       it 'should call callback', ->
         expect(@body).to.deep.equal foo: 'bar'
 
+    describe 'with a valid as', ->
+      beforeEach (done) ->
+        @request.post.yields null, statusCode: 201, {foo: 'bar'}
+        @sut.generateAndStoreToken 'uuid', {as: 'me'}, (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.post).to.have.been.calledWith '/devices/uuid/tokens',
+          headers:
+            'x-meshblu-as': 'me'
+          forever: true
+          gzip: true
+          json: true
+
+      it 'should call callback', ->
+        expect(@body).to.deep.equal foo: 'bar'
+
     describe 'when an error happens', ->
       beforeEach (done) ->
         @request.post.yields new Error(), statusCode: 201
@@ -342,6 +358,73 @@ describe 'MeshbluHttp', ->
       beforeEach (done) ->
         @request.post.yields null, statusCode: 400, "Device not found"
         @sut.generateAndStoreToken 'invalid-uuid', (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.post).to.have.been.calledWith '/devices/invalid-uuid/tokens'
+
+      it 'should callback with an error', ->
+        expect(@error.message).to.deep.equal "Device not found"
+
+  describe '->generateAndStoreTokenWithOptions', ->
+    beforeEach ->
+      @request = post: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp {}, @dependencies
+
+    describe 'with a valid uuid', ->
+      beforeEach (done) ->
+        @request.post.yields null, statusCode: 201, {foo: 'bar'}
+        @sut.generateAndStoreTokenWithOptions 'uuid', {tag: 'something'}, (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.post).to.have.been.calledWith '/devices/uuid/tokens'
+
+      it 'should call callback', ->
+        expect(@body).to.deep.equal foo: 'bar'
+
+    describe 'with a valid as', ->
+      beforeEach (done) ->
+        @request.post.yields null, statusCode: 201, {foo: 'bar'}
+        @sut.generateAndStoreTokenWithOptions 'uuid', {tag: 'something'}, {as: 'me'}, (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.post).to.have.been.calledWith '/devices/uuid/tokens',
+          headers:
+            'x-meshblu-as': 'me'
+          forever: true
+          gzip: true
+          json:
+            tag: 'something'
+
+      it 'should call callback', ->
+        expect(@body).to.deep.equal foo: 'bar'
+
+    describe 'when an error happens', ->
+      beforeEach (done) ->
+        @request.post.yields new Error(), statusCode: 201
+        @sut.generateAndStoreTokenWithOptions 'invalid-uuid', {tag: 'something'}, (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.post).to.have.been.calledWith '/devices/invalid-uuid/tokens'
+
+      it 'should callback with an error', ->
+        expect(@error).to.exist
+
+    describe 'when a meshblu error body is returned', ->
+      beforeEach (done) ->
+        @request.post.yields null, statusCode: 201, {error: 'something wrong'}
+        @sut.generateAndStoreTokenWithOptions 'invalid-uuid', {tag: 'something'}, (@error, @body) => done()
+
+      it 'should call get', ->
+        expect(@request.post).to.have.been.calledWith '/devices/invalid-uuid/tokens'
+
+      it 'should callback with an error', ->
+        expect(@error).to.exist
+
+    describe 'when a bad error code is returned', ->
+      beforeEach (done) ->
+        @request.post.yields null, statusCode: 400, "Device not found"
+        @sut.generateAndStoreTokenWithOptions 'invalid-uuid', {tag: 'something'}, (@error, @body) => done()
 
       it 'should call get', ->
         expect(@request.post).to.have.been.calledWith '/devices/invalid-uuid/tokens'

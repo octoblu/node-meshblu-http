@@ -118,17 +118,25 @@ class MeshbluHttp
       debug "update", error, body
       @_handleResponse {error, response, body}, callback
 
-  generateAndStoreToken: (deviceUuid, callback=->) =>
-    options = @_getDefaultRequestOptions()
+  generateAndStoreToken: (uuid, rest...) =>
+    [callback] = rest
+    [metadata, callback] = rest if _.isPlainObject callback
+    metadata ?= {}
+    params = true
+    @_generateAndStoreToken uuid, params, metadata, callback
 
-    @request.post "/devices/#{deviceUuid}/tokens", options, (error, response, body) =>
-      debug "generateAndStoreToken", error, body
-      @_handleResponse {error, response, body}, callback
+  generateAndStoreTokenWithOptions: (uuid, params, rest...) =>
+    [callback] = rest
+    [metadata, callback] = rest if _.isPlainObject callback
+    metadata ?= {}
 
-  generateAndStoreTokenWithOptions: (deviceUuid, tokenOptions, callback=->) =>
+    @_generateAndStoreToken uuid, params, metadata, callback
+
+  _generateAndStoreToken: (uuid, params, metadata, callback=->) =>
     options = @_getDefaultRequestOptions()
-    options.json = tokenOptions if tokenOptions?
-    @request.post "/devices/#{deviceUuid}/tokens", options, (error, response, body) =>
+    options.json = params
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
+    @request.post "/devices/#{uuid}/tokens", options, (error, response, body) =>
       debug "generateAndStoreToken", error, body
       @_handleResponse {error, response, body}, callback
 
