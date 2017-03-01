@@ -15,8 +15,8 @@ class MeshbluRequest
     {service, domain, secure, resolveSrv} = options
 
     return unless resolveSrv
-    protocol = 'http'
-    protocol = 'https' if secure
+    protocol = 'https'
+    protocol = 'http' if secure == false
 
     @srvFailover = new SrvFailover {service, domain, protocol}, {dns: dependencies.dns ? dns}
 
