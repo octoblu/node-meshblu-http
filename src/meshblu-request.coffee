@@ -21,26 +21,16 @@ class MeshbluRequest
     @srvFailover = new SrvFailover {service, domain, protocol}, {dns: dependencies.dns ? dns}
 
   delete: (uri, options, callback) =>
-    @_resolveBaseUrl (error, baseUrl) =>
-      return callback error if error?
-      @request.delete uri, @_addDefaultOptions(options, {baseUrl}), callback
+    @_doRequest {method: 'delete', uri, options}, callback
 
   get: (uri, options, callback) =>
     @_doRequest {method: 'get', uri, options}, callback
 
-    # @_resolveBaseUrl (error, baseUrl) =>
-    #   return callback error if error?
-    #   @request.get uri, @_addDefaultOptions(options, {baseUrl}), callback
-
   patch: (uri, options, callback) =>
-    @_resolveBaseUrl (error, baseUrl) =>
-      return callback error if error?
-      @request.patch uri, @_addDefaultOptions(options, {baseUrl}), callback
+    @_doRequest {method: 'patch', uri, options}, callback
 
   post: (uri, options, callback) =>
-    @_resolveBaseUrl (error, baseUrl) =>
-      return callback error if error?
-      @request.post uri, @_addDefaultOptions(options, {baseUrl}), callback
+    @_doRequest {method: 'post', uri, options}, callback
 
   put: (uri, options, callback) =>
     @_doRequest {method: 'put', uri, options}, callback
