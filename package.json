@@ -1,6 +1,6 @@
 {
   "name": "meshblu-http",
-  "version": "9.5.0",
+  "version": "9.6.0",
   "description": "Meshblu HTTP API",
   "main": "index.js",
   "scripts": {
@@ -39,7 +39,8 @@
     "json-stable-stringify": "^1.0.0",
     "lodash": "^4.13.1",
     "node-rsa": "^0.4.2",
-    "request": "^2.72.0"
+    "request": "^2.72.0",
+    "srv-failover": "^1.0.4"
   },
   "nyc": {
     "cache": true,

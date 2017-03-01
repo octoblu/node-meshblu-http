@@ -1,18 +1,24 @@
-dns       = require 'dns'
-_         = require 'lodash'
-request   = require 'request'
-url       = require 'url'
-debug     = require('debug')('meshblu-http:meshblu-request')
+dns         = require 'dns'
+_           = require 'lodash'
+request     = require 'request'
+SrvFailover = require 'srv-failover'
+url         = require 'url'
 
 class MeshbluRequest
   constructor: (options={}, dependencies={}) ->
     {@dns, @request} = dependencies
-    @dns ?= dns
+
     @request ?= request
 
     @requestOptions = options.request
     {@protocol, @hostname, @port} = options
-    {@service, @domain, @secure, @resolveSrv} = options
+    {service, domain, secure, resolveSrv} = options
+
+    return unless resolveSrv
+    protocol = 'http'
+    protocol = 'https' if secure
+
+    @srvFailover = new SrvFailover {service, domain, protocol}, {dns: dependencies.dns ? dns}
 
   delete: (uri, options, callback) =>
     @_resolveBaseUrl (error, baseUrl) =>
@@ -20,9 +26,11 @@ class MeshbluRequest
       @request.delete uri, @_addDefaultOptions(options, {baseUrl}), callback
 
   get: (uri, options, callback) =>
-    @_resolveBaseUrl (error, baseUrl) =>
-      return callback error if error?
-      @request.get uri, @_addDefaultOptions(options, {baseUrl}), callback
+    @_doRequest {method: 'get', uri, options}, callback
+
+    # @_resolveBaseUrl (error, baseUrl) =>
+    #   return callback error if error?
+    #   @request.get uri, @_addDefaultOptions(options, {baseUrl}), callback
 
   patch: (uri, options, callback) =>
     @_resolveBaseUrl (error, baseUrl) =>
@@ -35,45 +43,26 @@ class MeshbluRequest
       @request.post uri, @_addDefaultOptions(options, {baseUrl}), callback
 
   put: (uri, options, callback) =>
+    @_doRequest {method: 'put', uri, options}, callback
+
+  _addDefaultOptions: (options, {method, uri, baseUrl}) =>
+    _.defaults {}, options, @requestOptions, {method, uri, baseUrl}
+
+  _doRequest: ({method, uri, options}, callback) =>
     @_resolveBaseUrl (error, baseUrl) =>
       return callback error if error?
-      @request.put uri, @_addDefaultOptions(options, {baseUrl}), callback
 
-  _addDefaultOptions: (options, {baseUrl}) =>
-    _.defaults {}, options, @requestOptions, {baseUrl}
-
-  _getDomain: =>
-    parts       = _.split @hostname, '.'
-    domainParts = _.takeRight parts, 2
-    return _.join domainParts, '.'
-
-  _getSrvAddress: =>
-    return "_#{@service}._#{@_getSrvProtocol()}.#{@domain}"
-
-  _getSrvProtocol: =>
-    return 'https' if @secure
-    return 'http'
-
-  _getSubdomain: =>
-    parts          = _.split @hostname, '.'
-    subdomainParts = _.dropRight parts, 2
-    return _.join subdomainParts, '.'
+      @request {baseUrl, uri, method: 'options'}, (error, response) =>
+        return @_retrySrvRequest(error, baseUrl, {method, uri, options}, callback) if error || response.statusCode != 204
+        return @request @_addDefaultOptions(options, {method, uri, baseUrl}), callback
 
   _resolveBaseUrl: (callback) =>
-    return callback null, url.format {@protocol, @hostname, @port} unless @resolveSrv
+    return callback null, url.format {@protocol, @hostname, @port} unless @srvFailover?
+    @srvFailover.resolveUrl callback
 
-    @dns.resolveSrv @_getSrvAddress(), (error, addresses) =>
-      return callback error if error?
-      return callback new Error('SRV record found, but contained no valid addresses') if _.isEmpty addresses
-      return callback null, @_resolveUrlFromAddresses(addresses)
-
-  _resolveUrlFromAddresses: (addresses) =>
-    address = _.minBy addresses, 'priority'
-    return url.format {
-      protocol: @_getSrvProtocol()
-      hostname: address.name
-      port: address.port
-    }
-
+  _retrySrvRequest: (error, baseUrl, opts, callback) =>
+    return callback error unless @srvFailover?
+    @srvFailover.markBadUrl baseUrl, ttl: 60000
+    return @_doRequest opts, callback
 
 module.exports = MeshbluRequest

@@ -1,4 +1,6 @@
 {beforeEach, describe, it} = global
+{expect} = require 'chai'
+sinon = require 'sinon'
 MeshbluRequest = require '../src/meshblu-request'
 
 describe 'MeshbluRequest', ->
@@ -6,7 +8,8 @@ describe 'MeshbluRequest', ->
     describe 'when constructed with resolveSrv and secure true', ->
       beforeEach ->
         @dns = resolveSrv: sinon.stub()
-        @request = get: sinon.stub()
+        @request = sinon.stub()
+        @request.get = sinon.stub()
 
         options = resolveSrv: true, service: 'meshblu', domain: 'octoblu.com', secure: true
         dependencies = {@dns, @request}
@@ -21,16 +24,16 @@ describe 'MeshbluRequest', ->
             priority: 1
             weight: 100
           }]
-          @request.get.yields null
+          @request.yields null, statusCode: 204
           @sut.get '/foo', {}, done
 
         it 'should call request with the resolved url', ->
-          expect(@request.get).to.have.been.calledWith '/foo', {baseUrl: 'https://mesh.biz:34'}
+          expect(@request).to.have.been.calledWith {method: 'get', baseUrl: 'https://mesh.biz:34', uri: '/foo'}
 
     describe 'when constructed with resolveSrv and secure false', ->
       beforeEach ->
         @dns = resolveSrv: sinon.stub()
-        @request = get: sinon.stub()
+        @request = sinon.stub()
 
         options = resolveSrv: true, service: 'meshblu', domain: 'octoblu.com', secure: false
         dependencies = {@dns, @request}
@@ -45,15 +48,15 @@ describe 'MeshbluRequest', ->
             priority: 1
             weight: 100
           }]
-          @request.get.yields null
+          @request.yields null, statusCode: 204
           @sut.get '/foo', {}, done
 
         it 'should call request with the resolved url', ->
-          expect(@request.get).to.have.been.calledWith '/foo', {baseUrl: 'http://insecure.xxx:80'}
+          expect(@request).to.have.been.calledWith {method: 'get', baseUrl: 'http://insecure.xxx:80', uri: '/foo'}
 
     describe 'when constructed without resolveSrv', ->
       beforeEach ->
-        @request = get: sinon.stub()
+        @request = sinon.stub()
 
         options = resolveSrv: false, protocol: 'https', hostname: 'thug.biz', port: 123
         dependencies = {@request}
@@ -62,8 +65,8 @@ describe 'MeshbluRequest', ->
 
       describe 'when one of the methods is called', ->
         beforeEach 'making the request', (done) ->
-          @request.get.yields null
+          @request.yields null, statusCode: 204
           @sut.get '/foo', {}, done
 
         it 'should call request with the formatted url', ->
-          expect(@request.get).to.have.been.calledWith '/foo', {baseUrl: 'https://thug.biz:123'}
+          expect(@request).to.have.been.calledWith {baseUrl: 'https://thug.biz:123', method: 'get', uri: '/foo'}
