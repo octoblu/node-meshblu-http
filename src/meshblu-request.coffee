@@ -39,20 +39,20 @@ class MeshbluRequest
     _.defaults {}, options, @requestOptions, {method, uri, baseUrl}
 
   _doRequest: ({method, uri, options}, callback) =>
-    @_resolveBaseUrl (error, baseUrl) =>
+    @_resolveBaseUrl uri, (error, baseUrl) =>
+      return callback error if error?
+      return @request @_addDefaultOptions(options, {method, uri, baseUrl}), callback
+
+  _resolveBaseUrl: (uri, callback) =>
+    return callback null, url.format {@protocol, @hostname, @port} unless @srvFailover?
+
+    @srvFailover.resolveUrl (error, baseUrl) =>
       return callback error if error?
 
       @request {baseUrl, uri, method: 'options'}, (error, response) =>
-        return @_retrySrvRequest(error, baseUrl, {method, uri, options}, callback) if error || response.statusCode != 204
-        return @request @_addDefaultOptions(options, {method, uri, baseUrl}), callback
-
-  _resolveBaseUrl: (callback) =>
-    return callback null, url.format {@protocol, @hostname, @port} unless @srvFailover?
-    @srvFailover.resolveUrl callback
-
-  _retrySrvRequest: (error, baseUrl, opts, callback) =>
-    return callback error unless @srvFailover?
-    @srvFailover.markBadUrl baseUrl, ttl: 60000
-    return @_doRequest opts, callback
+        if error? || response.statusCode != 204
+          @srvFailover.markBadUrl baseUrl, ttl: 60000
+          return @_resolveBaseUrl uri, callback
+        return callback null, baseUrl
 
 module.exports = MeshbluRequest
