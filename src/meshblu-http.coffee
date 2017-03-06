@@ -146,6 +146,12 @@ class MeshbluHttp
 
     privateKey: key.exportKey('private'), publicKey: key.exportKey('public')
 
+  getServerPublicKey: (callback) =>
+    options = @_getDefaultRequestOptions()
+    @request.get '/publickey', options, (error, response, body) =>
+      body = _.get body, 'publicKey'
+      @_handleResponse {error, response, body}, callback
+
   healthcheck: (callback=->) =>
     options = @_getDefaultRequestOptions()
     @request.get '/healthcheck', options, (error, response) =>

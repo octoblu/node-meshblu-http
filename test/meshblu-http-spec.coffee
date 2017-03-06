@@ -432,6 +432,42 @@ describe 'MeshbluHttp', ->
       it 'should callback with an error', ->
         expect(@error.message).to.deep.equal "Device not found"
 
+  describe '->getServerPublicKey', ->
+    beforeEach ->
+      @request = get: sinon.stub()
+      @dependencies = request: @request
+      @sut = new MeshbluHttp {}, @dependencies
+
+    describe 'when the server responds with the public key', ->
+      beforeEach (done) ->
+        @request.get.yields null, {statusCode: 200}, publicKey: 'public key'
+        @sut.getServerPublicKey (error, @publicKey) => done error
+
+      it 'should call get', ->
+        expect(@request.get).to.have.been.calledWith '/publickey',
+          json: true
+          forever: true
+          gzip: true
+
+      it 'should yield the public key', ->
+        expect(@publicKey).to.deep.equal 'public key'
+
+    describe 'when the request returns an HTTP error', ->
+      beforeEach (done) ->
+        @request.get.yields null, {statusCode: 503}, 'Service Unavailable'
+        @sut.getServerPublicKey (@error) => done()
+
+      it 'should yield the error', ->
+        expect(=> throw @error).to.throw 'Invalid Response Code 503'
+
+    describe 'when the healthcheck errors', ->
+      beforeEach (done) ->
+        @request.get.yields new Error 'Server went on vacation'
+        @sut.healthcheck (@error) => done()
+
+      it 'should yield the error', ->
+        expect(=> throw @error).to.throw 'Server went on vacation'
+
   describe '->healthcheck', ->
     beforeEach ->
       @request = get: sinon.stub()
