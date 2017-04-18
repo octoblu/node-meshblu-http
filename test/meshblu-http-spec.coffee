@@ -1116,7 +1116,7 @@ describe 'MeshbluHttp', ->
         expect(@error).to.be.an.instanceOf Error
         expect(@error.message).to.equal 'body error'
 
-  describe '->forward', ->
+  describe '->createHook', ->
     beforeEach ->
       @request = put: sinon.stub()
       @dependencies = request: @request
@@ -1356,6 +1356,23 @@ describe 'MeshbluHttp', ->
       it 'should yield an error', ->
         expect(=> throw @error).to.throw 'message'
 
+    describe 'when called with as', ->
+      beforeEach (done) ->
+        @request.post.yields null, {statusCode: 204}, null
+        options =
+          subscriberUuid: 'my-uuid'
+          emitterUuid: 'device-uuid'
+          type: 'broadcast'
+
+        @sut.createSubscription options, {as: 'sudo-uuid'}, (@error, @body) => done()
+
+      it 'should call post', ->
+        expect(@request.post).to.have.been.called
+        [url, options] = @request.post.firstCall.args
+        expect(url).to.deep.equal '/v2/devices/my-uuid/subscriptions/device-uuid/broadcast'
+        expect(options).to.have.deep.property 'headers'
+        expect(options.headers).to.deep.equal {'x-meshblu-as': 'sudo-uuid'}
+
   describe '->deleteSubscription', ->
     beforeEach ->
       @request = delete: sinon.stub()
@@ -1405,6 +1422,23 @@ describe 'MeshbluHttp', ->
 
       it 'should yield an error', ->
         expect(=> throw @error).to.throw 'message'
+
+    describe 'when called with as', ->
+      beforeEach (done) ->
+        @request.delete.yields null, {statusCode: 204}, null
+        options =
+          subscriberUuid: 'my-uuid'
+          emitterUuid: 'device-uuid'
+          type: 'broadcast'
+
+        @sut.deleteSubscription options, {as: 'sudo-uuid'}, (@error, @body) => done()
+
+      it 'should call post', ->
+        expect(@request.delete).to.have.been.called
+        [url, options] = @request.delete.firstCall.args
+        expect(url).to.deep.equal '/v2/devices/my-uuid/subscriptions/device-uuid/broadcast'
+        expect(options).to.have.deep.property 'headers'
+        expect(options.headers).to.deep.equal {'x-meshblu-as': 'sudo-uuid'}
 
     describe 'when something went wrong, but who knows what?', ->
       beforeEach (done) ->

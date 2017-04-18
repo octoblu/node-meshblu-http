@@ -1,13 +1,14 @@
 {
   "name": "meshblu-http",
-  "version": "9.8.0",
+  "version": "9.9.0",
   "description": "Meshblu HTTP API",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
     "coverage": "nyc npm test",
     "mocha:json": "env NPM_ENV=test mocha --reporter json > coverage/mocha.json",
-    "test:watch": "mocha -w -R mocha-multi --reporter-options spec=-,mocha-osx-reporter=-"
+    "test:watch": "mocha -w -R mocha-multi --reporter-options spec=-,mocha-osx-reporter=-",
+    "build": "coffee --compile --output dist/ src/*.coffee"
   },
   "repository": {
     "type": "git",

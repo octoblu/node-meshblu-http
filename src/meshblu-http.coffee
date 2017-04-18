@@ -9,12 +9,12 @@ class MeshbluHttp
     'sent'
     'received'
     'config'
-    "broadcast.received"
-    "broadcast.sent"
-    "configure.received"
-    "configure.sent"
-    "message.received"
-    "message.sent"
+    'broadcast.received'
+    'broadcast.sent'
+    'configure.received'
+    'configure.sent'
+    'message.received'
+    'message.sent'
   ]
 
   constructor: (options={}, @dependencies={}) ->
@@ -70,18 +70,26 @@ class MeshbluHttp
 
     @updateDangerously(uuid, updateRequest, callback)
 
-  createSubscription: ({subscriberUuid, emitterUuid, type}, callback) =>
-    url = @_subscriptionUrl {subscriberUuid, emitterUuid, type}
-    requestOptions = @_getDefaultRequestOptions()
+  createSubscription: ({subscriberUuid, emitterUuid, type}, rest...) =>
+    [callback] = rest
+    [metadata, callback] = rest if _.isPlainObject callback
 
-    @request.post url, requestOptions, (error, response, body) =>
+    url = @_subscriptionUrl {subscriberUuid, emitterUuid, type}
+    options = @_getDefaultRequestOptions()
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
+
+    @request.post url, options, (error, response, body) =>
       @_handleResponse {error, response, body}, callback
 
-  deleteSubscription: (options, callback) =>
-    url = @_subscriptionUrl options
-    requestOptions = @_getDefaultRequestOptions()
+  deleteSubscription: ({subscriberUuid, emitterUuid, type}, rest...) =>
+    [callback] = rest
+    [metadata, callback] = rest if _.isPlainObject callback
 
-    @request.delete url, requestOptions, (error, response, body) =>
+    url = @_subscriptionUrl {subscriberUuid, emitterUuid, type}
+    options = @_getDefaultRequestOptions()
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
+
+    @request.delete url, options, (error, response, body) =>
       @_handleResponse {error, response, body}, callback
 
   device: (uuid, rest...) =>
