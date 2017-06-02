@@ -1,22 +1,6 @@
-sudo: false
 language: node_js
 node_js:
-- '5'
-addons:
-  code_climate:
-    repo_token: e080139b7ac8b55f139f0ddd855fe6ac23a8a773a8b0841b3404441623115fb2
-before_script:
-- npm install -g codeclimate-test-reporter
-after_script:
-- codeclimate-test-reporter < coverage/lcov.info
-deploy:
-- provider: npm
-  email: serveradmin@octoblu.com
-  api_key:
-    secure: cxokfBSMpeaEsvWCpL8cHRwPVCSyzyq2uwUIVAH6cEFnumRxUCMsAti/DQq1QUsVf+aYW5IvkvLRCvAusXc+wdf6UrayjTCjO5zLflnh08qbmtVpftlyfEb3UpiqykoTDxeNDRbGmlof9QX2zxUsLg9CmJPP98t4qEMseGFZdFI=
-  on:
-    tags: true
-    branches: true
+- '7'
 after_success:
 - npm run coverage
 - npm run mocha:json
@@ -25,3 +9,12 @@ after_success:
 branches:
   only:
   - "/^v[0-9]/"
+deploy:
+- provider: npm
+  email: serveradmin@octoblu.com
+  skip_cleanup: true
+  api_key:
+    secure: cxokfBSMpeaEsvWCpL8cHRwPVCSyzyq2uwUIVAH6cEFnumRxUCMsAti/DQq1QUsVf+aYW5IvkvLRCvAusXc+wdf6UrayjTCjO5zLflnh08qbmtVpftlyfEb3UpiqykoTDxeNDRbGmlof9QX2zxUsLg9CmJPP98t4qEMseGFZdFI=
+  on:
+    tags: true
+    branches: true
