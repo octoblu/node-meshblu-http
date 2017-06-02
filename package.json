@@ -1,6 +1,6 @@
 {
   "name": "meshblu-http",
-  "version": "10.0.2",
+  "version": "10.0.3",
   "description": "Meshblu HTTP API",
   "main": "dist/index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "coverage": "nyc npm test",
     "mocha:json": "env NPM_ENV=test mocha --reporter json > coverage/mocha.json",
     "test:watch": "mocha -w -R mocha-multi --reporter-options spec=-,mocha-osx-reporter=-",
-    "build": "coffee --compile --output dist/ src/*.coffee"
+    "build": "coffee --compile --output dist/ --map src/*.coffee"
   },
   "repository": {
     "type": "git",
@@ -40,7 +40,7 @@
     "lodash": "^4.13.1",
     "node-rsa": "^0.4.2",
     "request": "^2.81.0",
-    "srv-failover": "^1.3.1"
+    "srv-failover": "^2.0.0"
   },
   "nyc": {
     "cache": true,
