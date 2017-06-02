@@ -1,1 +1,1 @@
-module.exports = require './meshblu-http.coffee'
+module.exports = require './meshblu-http'
