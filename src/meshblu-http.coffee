@@ -53,7 +53,7 @@ class MeshbluHttp
     options = @_getDefaultRequestOptions()
 
     @request.post "/authenticate", options, (error, response, body) =>
-      debug "authenticate", error, body
+      debug "authenticate", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   createHook: (uuid, type, url, callback) =>
@@ -79,7 +79,7 @@ class MeshbluHttp
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
     @request.post url, options, (error, response, body) =>
-      debug 'createSubscription', error, body
+      debug 'createSubscription', error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   deleteSubscription: ({subscriberUuid, emitterUuid, type}, rest...) =>
@@ -91,7 +91,7 @@ class MeshbluHttp
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
     @request.delete url, options, (error, response, body) =>
-      debug 'deleteSubscription', error, body
+      debug 'deleteSubscription', error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   device: (uuid, rest...) =>
@@ -105,7 +105,7 @@ class MeshbluHttp
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
     @request.get "/v2/devices/#{uuid}", options, (error, response, body) =>
-      debug "device", error, body
+      debug "device", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   devices: (query={}, rest...) =>
@@ -125,7 +125,7 @@ class MeshbluHttp
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
     @request.put "/v2/devices/#{uuid}/find-and-update", options, (error, response, body) =>
-      debug "update", error, body
+      debug "update", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   generateAndStoreToken: (uuid, rest...) =>
@@ -147,7 +147,7 @@ class MeshbluHttp
     options.json = params
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
     @request.post "/devices/#{uuid}/tokens", options, (error, response, body) =>
-      debug "generateAndStoreToken", error, body
+      debug "generateAndStoreToken", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   generateKeyPair: =>
@@ -181,14 +181,14 @@ class MeshbluHttp
     options.qs = query
 
     @request.get "/mydevices", options, (error, response, body) =>
-      debug "mydevices", error, body
+      debug "mydevices", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   publicKey: (deviceUuid, callback=->) =>
     options = @_getDefaultRequestOptions()
 
     @request.get "/devices/#{deviceUuid}/publickey", options, (error, response, body) =>
-      debug "publicKey", error, body
+      debug "publicKey", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   register: (device, callback=->) =>
@@ -196,21 +196,21 @@ class MeshbluHttp
     options.json = device
 
     @request.post "/devices", options, (error, response, body={}) =>
-      debug "register", error, body
+      debug "register", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   resetToken: (deviceUuid, callback=->) =>
     options = @_getDefaultRequestOptions()
     url = "/devices/#{deviceUuid}/token"
     @request.post url, options, (error, response, body) =>
-      debug 'resetToken', error, body
+      debug 'resetToken', error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   revokeToken: (deviceUuid, deviceToken, callback=->) =>
     options = @_getDefaultRequestOptions()
 
     @request.delete "/devices/#{deviceUuid}/tokens/#{deviceToken}", options, (error, response, body={}) =>
-      debug "revokeToken", error, body
+      debug "revokeToken", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   revokeTokenByQuery: (deviceUuid, query, callback=->) =>
@@ -218,7 +218,7 @@ class MeshbluHttp
     options.qs = query
 
     @request.delete "/devices/#{deviceUuid}/tokens", options, (error, response, body={}) =>
-      debug "revokeToken", error, body
+      debug "revokeToken", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   search: (query, metadata, callback) =>
@@ -226,7 +226,7 @@ class MeshbluHttp
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
     options.json = query
     @request.post "/search/devices", options, (error, response, body) =>
-      debug 'search', error, body
+      debug 'search', error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   searchTokens: (query, metadata, callback) =>
@@ -234,7 +234,7 @@ class MeshbluHttp
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
     options.json = query
     @request.post "/search/tokens", options, (error, response, body) =>
-      debug 'searchTokens', error, body
+      debug 'searchTokens', error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   setPrivateKey: (privateKey) =>
@@ -253,7 +253,7 @@ class MeshbluHttp
     options = @_getDefaultRequestOptions()
 
     @request.delete "/devices/#{device.uuid}", options, (error, response, body) =>
-      debug "unregister", error, body
+      debug "unregister", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   update: (uuid, params, rest...) =>
@@ -276,8 +276,8 @@ class MeshbluHttp
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
     @request.put "/v2/devices/#{uuid}", options, (error, response, body) =>
-      debug "updated", uuid, params
-      debug "update", error, body
+      debug "updated", uuid, JSON.stringify(params)
+      debug "update", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   verify: (message, signature) =>
@@ -287,7 +287,7 @@ class MeshbluHttp
     options = @_getDefaultRequestOptions()
 
     @request.get "/v2/whoami", options, (error, response, body) =>
-      debug "whoami", error, body
+      debug "whoami", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   _assertNoSrv: ({service, domain, secure}) =>
@@ -334,7 +334,7 @@ class MeshbluHttp
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
     @request.get "/v2/devices", options, (error, response, body) =>
-      debug "devices", error, body
+      debug "devices", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   _getDefaultHeaders: =>
@@ -393,7 +393,6 @@ class MeshbluHttp
 
     callback null, body
 
-
   _message: (message, metadata, callback=->) =>
     if @raw
       options = @_getRawRequestOptions()
@@ -404,10 +403,8 @@ class MeshbluHttp
 
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
-    debug 'POST', "/messages", options
-
     @request.post "/messages", options, (error, response, body) =>
-      debug "message", error, body
+      debug "message", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   # because request doesn't serialize arrays correctly for headers.
@@ -422,7 +419,7 @@ class MeshbluHttp
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
     @request.get "/v2/devices/#{uuid}/subscriptions", options, (error, response, body) =>
-      debug "subscriptions", error, body
+      debug "subscriptions", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   _subscriptionUrl: (options) =>
@@ -435,7 +432,7 @@ class MeshbluHttp
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
     @request.patch "/v2/devices/#{uuid}", options, (error, response, body) =>
-      debug "update", error, body
+      debug "update", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
   _userError: (code, message, response) =>
