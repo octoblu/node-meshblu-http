@@ -79,6 +79,7 @@ class MeshbluHttp
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
     @request.post url, options, (error, response, body) =>
+      debug 'createSubscription', error, body
       @_handleResponse {error, response, body}, callback
 
   deleteSubscription: ({subscriberUuid, emitterUuid, type}, rest...) =>
@@ -90,6 +91,7 @@ class MeshbluHttp
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
 
     @request.delete url, options, (error, response, body) =>
+      debug 'deleteSubscription', error, body
       @_handleResponse {error, response, body}, callback
 
   device: (uuid, rest...) =>
@@ -201,6 +203,7 @@ class MeshbluHttp
     options = @_getDefaultRequestOptions()
     url = "/devices/#{deviceUuid}/token"
     @request.post url, options, (error, response, body) =>
+      debug 'resetToken', error, body
       @_handleResponse {error, response, body}, callback
 
   revokeToken: (deviceUuid, deviceToken, callback=->) =>
@@ -223,6 +226,7 @@ class MeshbluHttp
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
     options.json = query
     @request.post "/search/devices", options, (error, response, body) =>
+      debug 'search', error, body
       @_handleResponse {error, response, body}, callback
 
   searchTokens: (query, metadata, callback) =>
@@ -230,6 +234,7 @@ class MeshbluHttp
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
     options.json = query
     @request.post "/search/tokens", options, (error, response, body) =>
+      debug 'searchTokens', error, body
       @_handleResponse {error, response, body}, callback
 
   setPrivateKey: (privateKey) =>
