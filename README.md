@@ -9,12 +9,12 @@ A node package to use the Meshblu HTTP API...
 
 # Usage
 ### Install:
-```
+```shell
 npm install --save meshblu-http
 ```
 
 ### Use:
-```
+```javascript
 var MeshbluHttp = require('meshblu-http');
 
 var meshbluHttp = new MeshbluHttp();
@@ -30,7 +30,7 @@ meshbluHttp.register({}, function(error, response) {
 | ----------| -------| --------| -------------------------------------|
 | options   | object | no      | can contain any of these keys: uuid, token, hostname, port, protocol, domain, service, secure, resolveSrv, auth |
 ------------------------------------------
-```
+```javascript
 var meshbluHttp = new MeshbluHttp({uuid: 'fancy_uuid', token: 'fancy_token'})
 ```
 
@@ -39,7 +39,7 @@ var meshbluHttp = new MeshbluHttp({uuid: 'fancy_uuid', token: 'fancy_token'})
 | ----------| -------| --------| -------------------------------------|
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.authenticate(function(error, response) {
   // code goes here
 })
@@ -53,7 +53,7 @@ meshbluHttp.authenticate(function(error, response) {
 | url       | string | yes     | a string containing the url          |
 | callback  |function| yes     | a function that returns error          |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.createHook('fancy_uuid', 'fancy_token', 'fancy_url', function(error) {
   // code goes here
 })
@@ -65,7 +65,7 @@ meshbluHttp.createHook('fancy_uuid', 'fancy_token', 'fancy_url', function(error)
 | options   | object | yes     | an object containing three keys: subscriberUuid, emitterUuid, and type |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.createSubscription(
   {
     subscriberUuid: 'fancy_uuid',
@@ -84,7 +84,7 @@ meshbluHttp.createSubscription(
 | options   | object | yes     | an object containing three keys: subscriberUuid, emitterUuid, and type |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.deleteSubscription(
   {
     subscriberUuid: 'fancy_uuid',
@@ -104,7 +104,7 @@ meshbluHttp.deleteSubscription(
 | metadata  | object | no      | an object containing metadata information |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.device('fancy_uuid', {as: 'another_user_uuid'}, function(error, response){
   // code goes here
 })
@@ -117,7 +117,7 @@ meshbluHttp.device('fancy_uuid', {as: 'another_user_uuid'}, function(error, resp
 | metadata  | object | no      | an object containing metadata information |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.devices({type: 'drone'}, {as: 'another_user_uuid'}, function(error, response){
   // code goes here
 })
@@ -131,7 +131,7 @@ meshbluHttp.devices({type: 'drone'}, {as: 'another_user_uuid'}, function(error, 
 | metadata  | object | no      | an object containing metadata information |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.findAndUpdate('fancy_uuid', {type: 'new-type'}, function(error, response){
   // code goes here
 })
@@ -143,7 +143,7 @@ meshbluHttp.findAndUpdate('fancy_uuid', {type: 'new-type'}, function(error, resp
 | uuid      | string | yes     | a string containing the uuid of the device |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.generateAndStoreToken('fancy_uuid', function(error, response){
   // code goes here
 })
@@ -156,7 +156,7 @@ meshbluHttp.generateAndStoreToken('fancy_uuid', function(error, response){
 | options   | object | no      | an object containing the options for the token |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.generateAndStoreTokenWithOptions('fancy_uuid', {expiresOn: '1485452874'},
   function(error, response){
     // code goes here
@@ -169,7 +169,7 @@ meshbluHttp.generateAndStoreTokenWithOptions('fancy_uuid', {expiresOn: '14854528
 | ----------| -------| --------| -------------------------------------|
 | none      |  |      |          |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.generateKeyPair()
 ```
 
@@ -178,7 +178,7 @@ meshbluHttp.generateKeyPair()
 | ----------| -------| --------| -------------------------------------|
 | callback  |function| yes     | a function that returns error, healthy, and code |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.healthcheck(function(error, healthy, code){
   // code goes here
 })
@@ -191,7 +191,7 @@ meshbluHttp.healthcheck(function(error, healthy, code){
 | metadata  | object | no      | an object containing metadata information |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.message({data: 'hello_message'}, function(error, response){
   // code goes here
 })
@@ -203,7 +203,7 @@ meshbluHttp.message({data: 'hello_message'}, function(error, response){
 | query     | object | no      | an object containing your query      |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.mydevices({type: 'drone'}, function(error, response){
   // code goes here
 })
@@ -215,7 +215,7 @@ meshbluHttp.mydevices({type: 'drone'}, function(error, response){
 | uuid      | string | yes     | a string containing the uuid of the device |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.publicKey('fancy_uuid', function(error, response){
   // code goes here
 })
@@ -227,7 +227,7 @@ meshbluHttp.publicKey('fancy_uuid', function(error, response){
 | options   | object | yes     | an object containing properties that you would like your device to have. Can be empty object|
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.register({color: 'blue'}, function(error, response){
   // code goes here
 })
@@ -239,7 +239,7 @@ meshbluHttp.register({color: 'blue'}, function(error, response){
 | uuid      | string | yes     | a string containing the uuid of the device |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.resetToken('fancy_uuid', function(error, response){
   // code goes here
 })
@@ -252,7 +252,7 @@ meshbluHttp.resetToken('fancy_uuid', function(error, response){
 | token     | string | yes     | a string containing the token of the device |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.revokeToken('fancy_uuid', 'fancy_token', function(error, response){
   // code goes here
 })
@@ -265,7 +265,7 @@ meshbluHttp.revokeToken('fancy_uuid', 'fancy_token', function(error, response){
 | query     | object | yes     | an object containing your query      |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.revokeTokenByQuery('fancy_uuid', {expiresOn: '1485452874'},
   function(error, response){
     // code goes here
@@ -280,7 +280,7 @@ meshbluHttp.revokeTokenByQuery('fancy_uuid', {expiresOn: '1485452874'},
 | metadata  | object | yes     | an object containing metadata information. Can be left empty |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.search({type: 'drone'}, {as: 'another_uuid'},
   function(error, response){
     // code goes here
@@ -295,7 +295,7 @@ meshbluHttp.search({type: 'drone'}, {as: 'another_uuid'},
 | metadata  | object | yes     | an object containing metadata information. Can be left empty |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.searchTokens({expiresOn: '1485452874'}, {as: 'another_uuid'},
   function(error, response){
     // code goes here
@@ -308,7 +308,7 @@ meshbluHttp.searchTokens({expiresOn: '1485452874'}, {as: 'another_uuid'},
 | ----------| -------| --------| -------------------------------------|
 | privateKey| string/object | yes     | a string or object containing your privateKey  |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.setPrivateKey(privateKey)
 ```
 
@@ -317,7 +317,7 @@ meshbluHttp.setPrivateKey(privateKey)
 | ----------| -------| --------| -------------------------------------|
 | data      | object | yes     | an object containing the data you want to sign your privateKey with |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.sign(data)
 ```
 
@@ -328,7 +328,7 @@ meshbluHttp.sign(data)
 | metadata  | object | no      | an object containing metadata information |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.subscriptions('fancy_uuid', {as: 'another_uuid'},
   function(error, response){
     // code goes here
@@ -342,7 +342,7 @@ meshbluHttp.subscriptions('fancy_uuid', {as: 'another_uuid'},
 | device    | object | yes     | an object containing the device credentials |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.unregister({uuid: 'abc', token: 'asd'}, function(error, response){
   // code goes here
 })
@@ -356,7 +356,7 @@ meshbluHttp.unregister({uuid: 'abc', token: 'asd'}, function(error, response){
 | metadata  | object | no      | an object containing metadata information |
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.update('fancy_uuid', {color: 'green'}, function(error, response){
   // code goes here
 })
@@ -368,7 +368,7 @@ meshbluHttp.update('fancy_uuid', {color: 'green'}, function(error, response){
 | message   | string/object | yes     | data for encrypting                  |
 | signature | string | yes     | this can be obtained from sign()     |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.verify(message, signature)
 ```
 
@@ -377,7 +377,7 @@ meshbluHttp.verify(message, signature)
 | ----------| -------| --------| -------------------------------------|
 | callback  |function| yes     | a function that returns error and response |
 ------------------------------------------
-```
+```javascript
 meshbluHttp.whoami(function(error, response){
   // code goes here
 })
