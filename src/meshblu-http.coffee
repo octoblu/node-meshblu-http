@@ -221,7 +221,11 @@ class MeshbluHttp
       debug "revokeToken", error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
-  search: (query, metadata, callback) =>
+  search: (query, rest...) =>
+    [callback] = rest
+    [metadata, callback] = rest if _.isPlainObject callback
+    metadata ?= {}
+
     options = @_getDefaultRequestOptions()
     options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
     options.json = query
