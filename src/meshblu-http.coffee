@@ -20,6 +20,7 @@ class MeshbluHttp
   constructor: (options={}, @dependencies={}) ->
     options = _.cloneDeep options
     {
+      bearerToken
       uuid
       token
       hostname
@@ -39,10 +40,12 @@ class MeshbluHttp
     @keepAlive ?= true
     @gzip ?= true
 
-    throw new Error 'a uuid is provided but the token is not' if uuid? && !token?
-    throw new Error 'a token is provided but the uuid is not' if token? && !uuid?
+    throw new Error 'cannot provide uuid, token, and bearerToken' if (uuid? || token?) && bearerToken?
+    throw new Error 'a uuid is provided but the token is not' if uuid? && !token? && !bearerToken?
+    throw new Error 'a token is provided but the uuid is not' if token? && !uuid? && !bearerToken?
 
     auth ?= {username: uuid, password: token} if uuid? && token?
+    auth = { bearer: bearerToken } if bearerToken?
 
     {request, @MeshbluRequest, @NodeRSA} = @dependencies
     @MeshbluRequest ?= require './meshblu-request'

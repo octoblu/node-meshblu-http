@@ -92,6 +92,26 @@ describe 'MeshbluHttp', ->
           request: {auth: {username: 'the-uuid', password: 'the-token'}}
         }
 
+    describe 'when constructed with bearerToken', ->
+      it 'should create the correct MeshbluRequest', ->
+        MeshbluRequest = sinon.spy()
+        new MeshbluHttp {bearerToken: 'bearer-token'}, {MeshbluRequest: MeshbluRequest}
+
+        expect(MeshbluRequest).to.have.been.calledWithNew
+        expect(MeshbluRequest).to.have.been.calledWith {
+          resolveSrv: false
+          protocol: 'https'
+          hostname: 'meshblu.octoblu.com'
+          port: 443
+          request: {auth: {bearer: 'bearer-token'}}
+        }
+
+
+    describe 'when constructed with a uuid, token, and bearerToken', ->
+      it 'should throw an exception', ->
+        construction = => new MeshbluHttp { uuid: 'the-uuid', token: 'some-token', bearerToken: 'bearer-token' }
+        expect(construction).to.throw 'cannot provide uuid, token, and bearerToken'
+
     describe 'when constructed with just a uuid and no token', ->
       it 'should throw an exception', ->
         construction = => new MeshbluHttp { uuid: 'the-uuid' }

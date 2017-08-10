@@ -28,10 +28,11 @@ meshbluHttp.register({}, function(error, response) {
 ### Constructor
 | Parameter | Type   | Required| Description                          |
 | ----------| -------| --------| -------------------------------------|
-| options   | object | no      | can contain any of these keys: uuid, token, hostname, port, protocol, domain, service, secure, resolveSrv, auth |
+| options   | object | no      | can contain any of these keys: bearerToken, uuid, token, hostname, port, protocol, domain, service, secure, resolveSrv, auth |
 ------------------------------------------
 ```javascript
 var meshbluHttp = new MeshbluHttp({uuid: 'fancy_uuid', token: 'fancy_token'})
+var meshbluHttp = new MeshbluHttp({bearerToken: 'some-bearer-token'})
 ```
 
 ### Authenticate
