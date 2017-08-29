@@ -85,6 +85,19 @@ class MeshbluHttp
       debug 'createSubscription', error, JSON.stringify(body)
       @_handleResponse {error, response, body}, callback
 
+  deleteSubscriptions: ({subscriberUuid, emitterUuid, type}, rest...) =>
+    [callback] = rest
+    [metadata, callback] = rest if _.isPlainObject callback
+
+    url = "/v2/devices/#{subscriberUuid}/subscriptions"
+    options = @_getDefaultRequestOptions()
+    options.headers = _.extend {}, @_getMetadataHeaders(metadata), options.headers
+    options.json = { emitterUuid, type }
+
+    @request.delete url, options, (error, response, body) =>
+      debug 'deleteSubscriptions', error, JSON.stringify(body)
+      @_handleResponse {error, response, body}, callback
+
   deleteSubscription: ({subscriberUuid, emitterUuid, type}, rest...) =>
     [callback] = rest
     [metadata, callback] = rest if _.isPlainObject callback
